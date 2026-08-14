@@ -1,0 +1,43 @@
+# Compilación de .NET
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Configuración local con secretos
+.env
+appsettings.Development.json
+appsettings.*.Local.json
+secrets.json
+
+# Pruebas y cobertura
+TestResults/
+coverage/
+*.coverage
+*.cobertura.xml
+**/playwright-report/
+**/.playwright/
+
+# Front-end
+node_modules/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+
+# Material de trabajo interno, no es entregable.
+# La documentación entregable vive exclusivamente en /docs (ver docs/README.md).
+plan-licitaciones/
+CLAUDE.md

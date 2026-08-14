@@ -1,0 +1,9 @@
+# Normalización de finales de línea: LF dentro del repositorio y en la copia de trabajo,
+# para que la verificación de formato produzca el mismo resultado en Windows y en Linux.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.pdf binary
+*.ico binary
