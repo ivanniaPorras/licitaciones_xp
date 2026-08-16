@@ -63,9 +63,16 @@ dotnet_naming_symbols.interfaces.applicable_kinds = interface
 dotnet_naming_style.prefijo_i.required_prefix = I
 dotnet_naming_style.prefijo_i.capitalization = pascal_case
 
-# Los campos estáticos de solo lectura son constantes de hecho y usan PascalCase.
-# Esta regla debe declararse antes que la de campos de instancia: se aplica la primera
-# regla cuyo grupo de símbolos coincida.
+# Las constantes y los campos estáticos de solo lectura usan PascalCase. Estas reglas
+# deben declararse antes que la de campos de instancia: se aplica la primera regla cuyo
+# grupo de símbolos coincida.
+dotnet_naming_rule.constantes_pascal_case.severity = warning
+dotnet_naming_rule.constantes_pascal_case.symbols = constantes
+dotnet_naming_rule.constantes_pascal_case.style = pascal_case
+dotnet_naming_symbols.constantes.applicable_kinds = field
+dotnet_naming_symbols.constantes.applicable_accessibilities = *
+dotnet_naming_symbols.constantes.required_modifiers = const
+
 dotnet_naming_rule.campos_estaticos_pascal_case.severity = warning
 dotnet_naming_rule.campos_estaticos_pascal_case.symbols = campos_privados_estaticos
 dotnet_naming_rule.campos_estaticos_pascal_case.style = pascal_case
