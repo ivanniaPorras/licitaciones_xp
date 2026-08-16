@@ -1,3 +1,4 @@
+using Licitaciones.Domain.Auditoria;
 using Licitaciones.Domain.Dinero;
 
 namespace Licitaciones.Domain.Aprobacion;
@@ -7,8 +8,11 @@ namespace Licitaciones.Domain.Aprobacion;
 /// aprobación vive en esta tabla y no en el código, de modo que el cliente pueda
 /// modificarla sin que el programa cambie.
 /// </summary>
-public sealed class NivelAprobacion
+public sealed class NivelAprobacion : IAuditable
 {
+    // Constructor que Entity Framework Core usa al materializar la entidad.
+    private NivelAprobacion() => Aprobador = string.Empty;
+
     private NivelAprobacion(MontoCRC montoMinimo, MontoCRC? montoMaximo, string aprobador)
     {
         MontoMinimo = montoMinimo;
@@ -33,6 +37,12 @@ public sealed class NivelAprobacion
 
     /// <summary>Indica si el rango no tiene límite superior.</summary>
     public bool EsRangoAbierto => MontoMaximo is null;
+
+    /// <inheritdoc />
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset UpdatedAt { get; private set; }
 
     /// <summary>Crea un nivel de aprobación tras comprobar que su rango es coherente.</summary>
     /// <param name="montoMinimoCRC">Monto mínimo, inclusivo.</param>

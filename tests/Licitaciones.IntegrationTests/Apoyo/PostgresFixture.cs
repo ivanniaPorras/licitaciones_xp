@@ -14,8 +14,7 @@ namespace Licitaciones.IntegrationTests.Apoyo;
 /// </summary>
 public sealed class PostgresFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _contenedor = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
+    private readonly PostgreSqlContainer _contenedor = new PostgreSqlBuilder("postgres:16-alpine")
         .WithDatabase("licitaciones_test")
         .WithUsername("licitaciones_test")
         .WithPassword("licitaciones_test")
