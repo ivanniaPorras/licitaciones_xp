@@ -1,3 +1,6 @@
+using System.Collections.Frozen;
+using System.Collections.Immutable;
+
 namespace Licitaciones.Domain.Licitaciones;
 
 /// <summary>
@@ -7,16 +10,17 @@ namespace Licitaciones.Domain.Licitaciones;
 /// </summary>
 public static class MaquinaEstadosLicitacion
 {
-    private static readonly Dictionary<EstadoLicitacion, EstadoLicitacion[]> TransicionesPermitidas = new()
-    {
-        [EstadoLicitacion.Borrador] = [EstadoLicitacion.Publicada, EstadoLicitacion.Cerrada],
-        [EstadoLicitacion.Publicada] = [EstadoLicitacion.Cerrada],
-        [EstadoLicitacion.Cerrada] = []
-    };
+    private static readonly FrozenDictionary<EstadoLicitacion, ImmutableArray<EstadoLicitacion>> TransicionesPermitidas =
+        new Dictionary<EstadoLicitacion, ImmutableArray<EstadoLicitacion>>
+        {
+            [EstadoLicitacion.Borrador] = [EstadoLicitacion.Publicada, EstadoLicitacion.Cerrada],
+            [EstadoLicitacion.Publicada] = [EstadoLicitacion.Cerrada],
+            [EstadoLicitacion.Cerrada] = []
+        }.ToFrozenDictionary();
 
     /// <summary>Estados a los que puede pasar una licitación desde el estado indicado.</summary>
     /// <param name="origen">Estado actual de la licitación.</param>
-    public static IReadOnlyList<EstadoLicitacion> TransicionesDesde(EstadoLicitacion origen) =>
+    public static ImmutableArray<EstadoLicitacion> TransicionesDesde(EstadoLicitacion origen) =>
         TransicionesPermitidas.TryGetValue(origen, out var destinos) ? destinos : [];
 
     /// <summary>Indica si la transición entre los dos estados está permitida.</summary>
