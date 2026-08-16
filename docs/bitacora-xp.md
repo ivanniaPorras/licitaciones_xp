@@ -86,6 +86,28 @@ Verificación al cierre de la entrega:
 
 El compromiso de la entrega era superar el 80 % de cobertura en dominio; se cumple.
 
+**Entrega 4 — Persistencia y migraciones (HU-010 a HU-012, terminadas).**
+
+Se mapeó el modelo a PostgreSQL 16 con una configuración por entidad, la migración inicial
+y los datos semilla. Quedaron implementados los cuatro índices únicos —tres de ellos
+parciales—, las restricciones de verificación de montos, las claves foráneas restrictivas,
+el interceptor de auditoría con borrado lógico, la concurrencia optimista sobre `xmin`, la
+traducción de errores de PostgreSQL a mensajes controlados, y los repositorios con su
+unidad de trabajo transaccional.
+
+Las pruebas de integración se ejecutan contra **PostgreSQL 16 real en contenedor** mediante
+Testcontainers. Ninguna usa base en memoria.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 119 superadas |
+| `dotnet test` integración | 34 superadas |
+
+Estas tres historias pertenecen a la iteración 2 y se adelantaron respecto del plan, que
+las situaba después del cierre de la iteración 1.
+
 ### Decisiones tomadas
 
 | Decisión | Razón |
@@ -115,6 +137,9 @@ El compromiso de la entrega era superar el 80 % de cobertura en dominio; se cump
 | HU-007 | `5b8fbd3` | `d1328c5` | `3063fa8` |
 | HU-008 | `7a51e81` | `f4a0f90` | — |
 | HU-009 | `131cb81` | `1fe9435` | — |
+| HU-010 | `ea8bc60` | `99304a1` | — |
+| HU-011 | `0b2c931` | `d1220d1` | — |
+| HU-012 | `0b2c931` | `d1220d1` | — |
 
 > HU-001 es una historia de preparación del repositorio: la prueba de arquitectura y la
 > estructura que verifica se crearon en el mismo commit porque la prueba no puede existir
@@ -142,6 +167,21 @@ El compromiso de la entrega era superar el 80 % de cobertura en dominio; se cump
   "Oferta válida sin ahorro" pese a ser menor que el presupuesto. La prueba
   `AhorroMinimo_DevuelveOfertaAceptable` lo detectó antes de que el código saliera de la
   rama; la comparación se cambió para hacerse sobre los montos.
+- **HU-010** — Las primeras pruebas de persistencia fallaron al guardar una fecha con el
+  desplazamiento de Costa Rica: Npgsql solo admite desplazamiento cero en
+  `timestamp with time zone`. En vez de convertir a mano en cada llamada, se añadió una
+  convención del modelo que lleva toda fecha a tiempo universal en el límite de la
+  persistencia. La regla de "comparar siempre en UTC" pasó así a cumplirse sola.
+
+### Salvedad sobre el ciclo en la entrega 4
+
+Los repositorios y la unidad de trabajo (`ad58065`) se escribieron **antes** que sus
+pruebas, a diferencia del resto del trabajo. Son adaptadores delgados sobre Entity
+Framework Core cuyo contrato ya estaba fijado por las interfaces de la capa de aplicación,
+así que no había una decisión de diseño que la prueba pudiera guiar. Sus pruebas
+—`RepositoriosTests`— se escribieron enseguida y van en el mismo commit. Se registra aquí
+porque el historial debe reflejar lo que ocurrió, no lo que convendría que hubiera
+ocurrido.
 
 ### Sesiones de programación en pareja
 

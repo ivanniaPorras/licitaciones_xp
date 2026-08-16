@@ -39,9 +39,9 @@ Definida por el cliente:
 | HU-007 | Montos siempre mayores que cero | Alta | 2 | 1 | Terminada |
 | HU-008 | Selección de la mejor oferta | Alta | 3 | 1 | Terminada |
 | HU-009 | Clasificación del ahorro obtenido | Alta | 3 | 1 | Terminada |
-| HU-010 | Persistencia en PostgreSQL con datos iniciales | Alta | 5 | 2 | Pendiente |
-| HU-011 | Registro automático de fechas y borrado lógico | Media | 3 | 2 | Pendiente |
-| HU-012 | Protección ante ediciones simultáneas | Media | 3 | 2 | Pendiente |
+| HU-010 | Persistencia en PostgreSQL con datos iniciales | Alta | 5 | 2 | Terminada |
+| HU-011 | Registro automático de fechas y borrado lógico | Media | 3 | 2 | Terminada |
+| HU-012 | Protección ante ediciones simultáneas | Media | 3 | 2 | Terminada |
 | HU-013 | Administrar proveedores | Alta | 5 | 2 | Pendiente |
 | HU-014 | Consultar las ofertas de un proveedor | Media | 2 | 2 | Pendiente |
 | HU-015 | Administrar licitaciones | Alta | 5 | 2 | Pendiente |
@@ -327,8 +327,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 6. Las pruebas de estas condiciones se ejecutan contra PostgreSQL real en contenedor.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `PersistenciaTests` (8 casos), `RestriccionesTests` (6 casos)
+- Commits: `ea8bc60` (rojo), `99304a1` (verde)
 - Documentación: [modelo-datos.md](modelo-datos.md), [modulos/persistencia.md](modulos/persistencia.md)
 
 ---
@@ -352,8 +352,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 5. Las ofertas asociadas a un registro eliminado lógicamente se conservan.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `AuditoriaYBorradoLogicoTests` (4 casos)
+- Commits: `0b2c931` (rojo), `d1220d1` (verde)
 - Documentación: [modulos/persistencia.md](modulos/persistencia.md)
 
 ---
@@ -374,8 +374,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 3. En la API, esta situación devuelve el código 409.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ConcurrenciaYTransaccionesTests` (3 casos)
+- Commits: `0b2c931` (rojo), `d1220d1` (verde)
 - Documentación: [modulos/persistencia.md](modulos/persistencia.md)
 
 ---
