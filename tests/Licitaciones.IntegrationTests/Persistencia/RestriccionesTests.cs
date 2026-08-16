@@ -1,6 +1,7 @@
 using Licitaciones.Domain.Licitaciones;
 using Licitaciones.Domain.Ofertas;
 using Licitaciones.Domain.Proveedores;
+using Licitaciones.Infrastructure.Persistencia.Errores;
 using Licitaciones.IntegrationTests.Apoyo;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
