@@ -31,14 +31,14 @@ Definida por el cliente:
 | ID | Historia | Prioridad | Puntos | Iteración | Estado |
 |---|---|---|---|---|---|
 | HU-001 | Estructura del proyecto e integración continua | Alta | 3 | 1 | Terminada |
-| HU-002 | Ciclo de estados de una licitación | Alta | 5 | 1 | Pendiente |
-| HU-003 | Cierre funcional al alcanzarse la fecha | Alta | 3 | 1 | Pendiente |
-| HU-004 | Código de licitación único | Alta | 3 | 1 | Pendiente |
-| HU-005 | Nombre de proveedor único | Alta | 5 | 1 | Pendiente |
-| HU-006 | Caracteres permitidos en el nombre del proveedor | Alta | 2 | 1 | Pendiente |
-| HU-007 | Montos siempre mayores que cero | Alta | 2 | 1 | Pendiente |
-| HU-008 | Selección de la mejor oferta | Alta | 3 | 1 | Pendiente |
-| HU-009 | Clasificación del ahorro obtenido | Alta | 3 | 1 | Pendiente |
+| HU-002 | Ciclo de estados de una licitación | Alta | 5 | 1 | Terminada |
+| HU-003 | Cierre funcional al alcanzarse la fecha | Alta | 3 | 1 | Terminada |
+| HU-004 | Código de licitación único | Alta | 3 | 1 | Terminada |
+| HU-005 | Nombre de proveedor único | Alta | 5 | 1 | Terminada |
+| HU-006 | Caracteres permitidos en el nombre del proveedor | Alta | 2 | 1 | Terminada |
+| HU-007 | Montos siempre mayores que cero | Alta | 2 | 1 | Terminada |
+| HU-008 | Selección de la mejor oferta | Alta | 3 | 1 | Terminada |
+| HU-009 | Clasificación del ahorro obtenido | Alta | 3 | 1 | Terminada |
 | HU-010 | Persistencia en PostgreSQL con datos iniciales | Alta | 5 | 2 | Pendiente |
 | HU-011 | Registro automático de fechas y borrado lógico | Media | 3 | 2 | Pendiente |
 | HU-012 | Protección ante ediciones simultáneas | Media | 3 | 2 | Pendiente |
@@ -123,8 +123,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    repartidos por los controladores.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `MaquinaEstadosLicitacionTests` (12 casos)
+- Commits: `7cce7cd` (rojo), `865617f` (verde), `097a14c` (refactorización)
 - Documentación: [modulos/licitaciones.md](modulos/licitaciones.md)
 
 ---
@@ -149,8 +149,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    pueden fijar un momento determinado sin depender del reloj de la máquina.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `CierreFuncionalLicitacionTests` (6 casos)
+- Commits: `844cf9b` (rojo), `354fddf` (verde)
 - Documentación: [modulos/licitaciones.md](modulos/licitaciones.md)
 
 ---
@@ -172,8 +172,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    usa una versión normalizada.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `NormalizadorCodigoTests` (10 casos)
+- Commits: `220ad5c` (rojo), `c56c0e8` (verde), `3063fa8` (refactorización)
 - Documentación: [modulos/licitaciones.md](modulos/licitaciones.md)
 
 ---
@@ -197,8 +197,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 4. El nombre se conserva tal como lo escribió la persona usuaria.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `NormalizadorNombreProveedorTests` (12 casos)
+- Commits: `46c77ea` (rojo), `e9ba341` (verde)
 - Documentación: [modulos/proveedores.md](modulos/proveedores.md)
 
 ---
@@ -223,8 +223,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 4. La restricción se aplica tanto en el formulario como en el servidor.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ValidadorNombreProveedorTests` (19 casos)
+- Commits: `044e3ce` (rojo), `1eb0536` (verde)
 - Documentación: [modulos/proveedores.md](modulos/proveedores.md)
 
 ---
@@ -248,8 +248,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 6. Los montos conservan exactamente dos decimales, sin pérdida de precisión.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `MontoCRCTests` (16 casos)
+- Commits: `5b8fbd3` (rojo), `d1328c5` (verde), `3063fa8` (refactorización)
 - Documentación: [modulos/ofertas.md](modulos/ofertas.md)
 
 ---
@@ -271,8 +271,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 4. Si la licitación no tiene ofertas válidas, el sistema lo indica en lugar de fallar.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `EvaluadorMejorOfertaTests` (7 casos)
+- Commits: `7a51e81` (rojo), `f4a0f90` (verde)
 - Documentación: [modulos/ofertas.md](modulos/ofertas.md)
 
 ---
@@ -298,8 +298,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    **"Oferta válida sin ahorro"**.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ClasificadorAhorroTests` (11 casos)
+- Commits: `131cb81` (rojo), `1fe9435` (verde)
 - Documentación: [modulos/ofertas.md](modulos/ofertas.md)
 
 ---
