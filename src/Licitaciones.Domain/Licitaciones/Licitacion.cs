@@ -1,3 +1,4 @@
+using Licitaciones.Domain.Dinero;
 using Licitaciones.Domain.Tiempo;
 
 namespace Licitaciones.Domain.Licitaciones;
@@ -8,11 +9,12 @@ namespace Licitaciones.Domain.Licitaciones;
 /// </summary>
 public sealed class Licitacion
 {
-    private Licitacion(string codigo, string titulo, decimal presupuestoEstimadoCRC, DateTimeOffset fechaCierre)
+    private Licitacion(string codigo, string titulo, MontoCRC presupuestoEstimado, DateTimeOffset fechaCierre)
     {
         Codigo = codigo;
+        CodigoNormalizado = NormalizadorCodigo.Normalizar(codigo);
         Titulo = titulo;
-        PresupuestoEstimadoCRC = presupuestoEstimadoCRC;
+        PresupuestoEstimado = presupuestoEstimado;
         FechaCierre = fechaCierre;
         Estado = EstadoLicitacion.Borrador;
     }
@@ -23,6 +25,9 @@ public sealed class Licitacion
     /// <summary>Código tal como lo escribió la persona usuaria.</summary>
     public string Codigo { get; private set; }
 
+    /// <summary>Forma normalizada del código, que es la que se compara para detectar duplicados.</summary>
+    public string CodigoNormalizado { get; private set; }
+
     /// <summary>Título descriptivo del proceso de compra.</summary>
     public string Titulo { get; private set; }
 
@@ -30,7 +35,7 @@ public sealed class Licitacion
     public EstadoLicitacion Estado { get; private set; }
 
     /// <summary>Monto máximo autorizado, en colones.</summary>
-    public decimal PresupuestoEstimadoCRC { get; private set; }
+    public MontoCRC PresupuestoEstimado { get; private set; }
 
     /// <summary>Instante a partir del cual la licitación deja de admitir ofertas.</summary>
     public DateTimeOffset FechaCierre { get; private set; }
@@ -45,7 +50,7 @@ public sealed class Licitacion
         string titulo,
         decimal presupuestoEstimadoCRC,
         DateTimeOffset fechaCierre) =>
-        new(codigo, titulo, presupuestoEstimadoCRC, fechaCierre);
+        new(codigo, titulo, MontoCRC.Crear(presupuestoEstimadoCRC), fechaCierre);
 
     /// <summary>
     /// Indica si la licitación ya no admite ofertas. Devuelve verdadero tanto si su estado
