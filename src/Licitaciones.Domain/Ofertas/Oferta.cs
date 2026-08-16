@@ -1,3 +1,4 @@
+using Licitaciones.Domain.Auditoria;
 using Licitaciones.Domain.Dinero;
 
 namespace Licitaciones.Domain.Ofertas;
@@ -6,8 +7,18 @@ namespace Licitaciones.Domain.Ofertas;
 /// Propuesta económica que un proveedor presenta a una licitación. Un proveedor presenta
 /// a lo sumo una oferta por licitación.
 /// </summary>
-public sealed class Oferta
+/// <remarks>
+/// La oferta no admite borrado lógico: o existe, o se elimina físicamente mientras la
+/// licitación siga vigente. Una vez cerrada la licitación queda inmutable, y conservarla
+/// es precisamente lo que da valor probatorio al proceso.
+/// </remarks>
+public sealed class Oferta : IAuditable
 {
+    // Constructor que Entity Framework Core usa al materializar la entidad.
+    private Oferta()
+    {
+    }
+
     private Oferta(Guid licitacionId, Guid proveedorId, MontoCRC monto, DateTimeOffset fechaRegistro)
     {
         LicitacionId = licitacionId;
@@ -34,6 +45,12 @@ public sealed class Oferta
     /// </summary>
     public DateTimeOffset FechaRegistro { get; private set; }
 
+    /// <inheritdoc />
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset UpdatedAt { get; private set; }
+
     /// <summary>Crea una oferta tras comprobar que su monto cumple las reglas monetarias.</summary>
     /// <param name="licitacionId">Licitación a la que se presenta.</param>
     /// <param name="proveedorId">Proveedor que la presenta.</param>
@@ -45,4 +62,8 @@ public sealed class Oferta
         decimal montoOfertadoCRC,
         DateTimeOffset fechaRegistro) =>
         new(licitacionId, proveedorId, MontoCRC.Crear(montoOfertadoCRC), fechaRegistro);
+
+    /// <summary>Cambia el monto ofertado aplicando las reglas monetarias.</summary>
+    /// <param name="montoOfertadoCRC">Nuevo monto en colones.</param>
+    public void CambiarMonto(decimal montoOfertadoCRC) => Monto = MontoCRC.Crear(montoOfertadoCRC);
 }

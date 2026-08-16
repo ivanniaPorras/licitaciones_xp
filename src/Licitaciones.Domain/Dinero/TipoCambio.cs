@@ -1,12 +1,19 @@
+using Licitaciones.Domain.Auditoria;
+
 namespace Licitaciones.Domain.Dinero;
 
 /// <summary>
 /// Cantidad de colones equivalente a un dólar, con la fecha desde la que rige. Solo un
 /// registro puede estar activo a la vez.
 /// </summary>
-public sealed class TipoCambio
+public sealed class TipoCambio : IAuditable
 {
     private const int DecimalesPermitidos = 4;
+
+    // Constructor que Entity Framework Core usa al materializar la entidad.
+    private TipoCambio()
+    {
+    }
 
     private TipoCambio(decimal crcPorUsd, DateTimeOffset fechaVigencia)
     {
@@ -25,6 +32,12 @@ public sealed class TipoCambio
 
     /// <summary>Indica si esta es la tasa que el sistema usa para convertir.</summary>
     public bool Activo { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset UpdatedAt { get; private set; }
 
     /// <summary>Crea un tipo de cambio inactivo tras comprobar que la tasa es positiva.</summary>
     /// <param name="crcPorUsd">Colones equivalentes a un dólar.</param>

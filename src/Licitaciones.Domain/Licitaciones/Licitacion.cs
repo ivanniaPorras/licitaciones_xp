@@ -1,3 +1,4 @@
+using Licitaciones.Domain.Auditoria;
 using Licitaciones.Domain.Dinero;
 using Licitaciones.Domain.Tiempo;
 
@@ -7,8 +8,18 @@ namespace Licitaciones.Domain.Licitaciones;
 /// Proceso de compra publicado por la organización. Es la raíz que gobierna su propio
 /// ciclo de estados y el período durante el cual admite ofertas.
 /// </summary>
-public sealed class Licitacion
+public sealed class Licitacion : IAuditable, ISoftDeletable
 {
+    // Constructor sin parámetros que Entity Framework Core usa para materializar la
+    // entidad al leerla de la base. No debe usarse desde el dominio: para crear una
+    // licitación está el método Crear, que es el que aplica las validaciones.
+    private Licitacion()
+    {
+        Codigo = string.Empty;
+        CodigoNormalizado = string.Empty;
+        Titulo = string.Empty;
+    }
+
     private Licitacion(string codigo, string titulo, MontoCRC presupuestoEstimado, DateTimeOffset fechaCierre)
     {
         Codigo = codigo;
@@ -40,6 +51,15 @@ public sealed class Licitacion
     /// <summary>Instante a partir del cual la licitación deja de admitir ofertas.</summary>
     public DateTimeOffset FechaCierre { get; private set; }
 
+    /// <inheritdoc />
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset UpdatedAt { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset? DeletedAt { get; private set; }
+
     /// <summary>Crea una licitación en estado Borrador.</summary>
     /// <param name="codigo">Código identificador del proceso.</param>
     /// <param name="titulo">Título descriptivo.</param>
@@ -70,4 +90,9 @@ public sealed class Licitacion
         MaquinaEstadosLicitacion.Validar(Estado, destino);
         Estado = destino;
     }
+
+    /// <summary>Cambia el presupuesto estimado aplicando las reglas monetarias.</summary>
+    /// <param name="presupuestoEstimadoCRC">Nuevo presupuesto en colones.</param>
+    public void CambiarPresupuesto(decimal presupuestoEstimadoCRC) =>
+        PresupuestoEstimado = MontoCRC.Crear(presupuestoEstimadoCRC);
 }
