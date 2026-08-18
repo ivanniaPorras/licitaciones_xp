@@ -1,3 +1,4 @@
+using Licitaciones.Application.Ofertas;
 using Licitaciones.Application.Persistencia;
 using Licitaciones.Domain.Dinero;
 using Licitaciones.Domain.Ofertas;
@@ -56,6 +57,46 @@ public sealed class RepositorioOfertasEnMemoria : IOfertaRepository
         Guid proveedorId,
         CancellationToken cancelacion = default) =>
         Task.FromResult(_ofertas.Any(o => o.ProveedorId == proveedorId));
+
+    public Task<(IReadOnlyList<OfertaResponse> Elementos, int Total)> ListarDetalleAsync(
+        ConsultaOfertas consulta,
+        CancellationToken cancelacion = default)
+    {
+        IEnumerable<Oferta> consultadas = _ofertas;
+
+        if (consulta.LicitacionId is { } licitacionId)
+        {
+            consultadas = consultadas.Where(o => o.LicitacionId == licitacionId);
+        }
+
+        if (consulta.ProveedorId is { } proveedorId)
+        {
+            consultadas = consultadas.Where(o => o.ProveedorId == proveedorId);
+        }
+
+        var materializadas = consultadas.OrderByDescending(o => o.FechaRegistro).ToList();
+        var pagina = materializadas
+            .Skip((consulta.Pagina - 1) * consulta.Tamano)
+            .Take(consulta.Tamano)
+            .Select(ADetalle)
+            .ToList();
+
+        return Task.FromResult<(IReadOnlyList<OfertaResponse>, int)>((pagina, materializadas.Count));
+    }
+
+    public Task<OfertaResponse?> ObtenerDetalleAsync(Guid id, CancellationToken cancelacion = default) =>
+        Task.FromResult(_ofertas.SingleOrDefault(o => o.Id == id) is { } oferta ? ADetalle(oferta) : null);
+
+    // El doble no conoce licitaciones ni proveedores: los nombres se dejan vacíos porque
+    // ninguna regla de negocio depende de ellos, solo la presentación.
+    private static OfertaResponse ADetalle(Oferta oferta) => new(
+        oferta.Id,
+        oferta.LicitacionId,
+        string.Empty,
+        oferta.ProveedorId,
+        string.Empty,
+        oferta.Monto.Valor,
+        oferta.FechaRegistro);
 
     public void Agregar(Oferta oferta) => _ofertas.Add(oferta);
 

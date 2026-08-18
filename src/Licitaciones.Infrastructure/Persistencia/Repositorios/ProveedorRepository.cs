@@ -31,6 +31,41 @@ public sealed class ProveedorRepository : IProveedorRepository
     }
 
     /// <inheritdoc />
+    public async Task<(IReadOnlyList<Proveedor> Elementos, int Total)> ListarAsync(
+        string? busqueda,
+        string? orden,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default)
+    {
+        var consulta = _contexto.Proveedores.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(busqueda))
+        {
+            // Se busca sobre la columna normalizada para que el término encuentre al
+            // proveedor sin importar cómo se escribiera su nombre.
+            var termino = NormalizadorNombreProveedor.Normalizar(busqueda);
+            consulta = consulta.Where(p => p.NombreNormalizado.Contains(termino));
+        }
+
+        consulta = orden switch
+        {
+            "nombre:desc" => consulta.OrderByDescending(p => p.NombreNormalizado),
+            "creacion:desc" => consulta.OrderByDescending(p => p.CreatedAt),
+            "creacion:asc" => consulta.OrderBy(p => p.CreatedAt),
+            _ => consulta.OrderBy(p => p.NombreNormalizado)
+        };
+
+        var total = await consulta.CountAsync(cancelacion);
+        var elementos = await consulta
+            .Skip((pagina - 1) * tamano)
+            .Take(tamano)
+            .ToListAsync(cancelacion);
+
+        return (elementos, total);
+    }
+
+    /// <inheritdoc />
     public void Agregar(Proveedor proveedor) => _contexto.Proveedores.Add(proveedor);
 
     /// <inheritdoc />
