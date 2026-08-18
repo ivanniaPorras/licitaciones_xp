@@ -1,0 +1,47 @@
+@using Licitaciones.Application.Licitaciones
+@model ActualizarLicitacionRequest
+@{
+    ViewData["Title"] = "Editar licitación";
+    var id = (Guid)ViewData["Id"]!;
+}
+
+<h1>Editar licitación</h1>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form method="post" asp-action="Edit" asp-route-id="@id" class="col-md-8">
+    <div class="mb-3">
+        <label class="form-label" for="Codigo">Código</label>
+        <input class="form-control" id="Codigo" name="Codigo" value="@Model.Codigo" required maxlength="50" />
+        <span asp-validation-for="Codigo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="Titulo">Título</label>
+        <input class="form-control" id="Titulo" name="Titulo" value="@Model.Titulo" required maxlength="200" />
+        <span asp-validation-for="Titulo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="PresupuestoEstimadoCRC">Presupuesto estimado (CRC)</label>
+        <input class="form-control" id="PresupuestoEstimadoCRC" name="PresupuestoEstimadoCRC"
+               type="number" step="0.01" min="0.01" inputmode="decimal"
+               value="@Model.PresupuestoEstimadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+               required aria-describedby="ayudaPresupuesto" />
+        <div id="ayudaPresupuesto" class="form-text">
+            No puede quedar por debajo de la oferta más alta ya registrada.
+        </div>
+        <span asp-validation-for="PresupuestoEstimadoCRC" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="FechaCierre">Fecha y hora de cierre</label>
+        <input class="form-control" id="FechaCierre" name="FechaCierre" type="datetime-local" required
+               value="@Model.FechaCierre.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")" />
+        <span asp-validation-for="FechaCierre" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-id="@id">Cancelar</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

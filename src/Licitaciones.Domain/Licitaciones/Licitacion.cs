@@ -91,6 +91,18 @@ public sealed class Licitacion : IAuditable, ISoftDeletable
         Estado = destino;
     }
 
+    /// <summary>Cambia el código, el título y la fecha de cierre.</summary>
+    /// <param name="codigo">Nuevo código. Su forma normalizada se recalcula.</param>
+    /// <param name="titulo">Nuevo título.</param>
+    /// <param name="fechaCierre">Nuevo instante de cierre.</param>
+    public void CambiarDatos(string codigo, string titulo, DateTimeOffset fechaCierre)
+    {
+        Codigo = codigo;
+        CodigoNormalizado = NormalizadorCodigo.Normalizar(codigo);
+        Titulo = titulo;
+        FechaCierre = fechaCierre;
+    }
+
     /// <summary>Cambia el presupuesto estimado aplicando las reglas monetarias.</summary>
     /// <param name="presupuestoEstimadoCRC">Nuevo presupuesto en colones.</param>
     public void CambiarPresupuesto(decimal presupuestoEstimadoCRC) =>

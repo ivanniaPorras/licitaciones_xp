@@ -1,0 +1,24 @@
+@using Licitaciones.Application.Licitaciones
+@model LicitacionResponse
+@{
+    ViewData["Title"] = "Eliminar licitación";
+}
+
+<h1>Eliminar licitación</h1>
+
+<div class="alert alert-warning" role="alert">
+    ¿Confirma dar de baja <strong>@Model.Codigo — @Model.Titulo</strong>?
+    @if (Model.CantidadOfertas > 0)
+    {
+        <text>
+            Tiene @Model.CantidadOfertas oferta(s) registrada(s). La licitación deja de
+            aparecer en los listados, pero sus ofertas se conservan como evidencia del
+            proceso.
+        </text>
+    }
+</div>
+
+<form method="post" asp-action="DeleteConfirmed" asp-route-id="@Model.Id">
+    <button type="submit" class="btn btn-danger">Sí, dar de baja</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.Id">Cancelar</a>
+</form>

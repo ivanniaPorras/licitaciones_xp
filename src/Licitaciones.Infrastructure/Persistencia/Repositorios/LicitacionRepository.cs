@@ -32,6 +32,47 @@ public sealed class LicitacionRepository : ILicitacionRepository
     }
 
     /// <inheritdoc />
+    public async Task<(IReadOnlyList<Licitacion> Elementos, int Total)> ListarAsync(
+        string? busqueda,
+        string? orden,
+        EstadoLicitacion? estado,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default)
+    {
+        var consulta = _contexto.Licitaciones.AsNoTracking();
+
+        if (estado is { } filtro)
+        {
+            consulta = consulta.Where(l => l.Estado == filtro);
+        }
+
+        if (!string.IsNullOrWhiteSpace(busqueda))
+        {
+            var normalizado = NormalizadorCodigo.Normalizar(busqueda);
+            var termino = busqueda.Trim();
+            consulta = consulta.Where(l =>
+                l.CodigoNormalizado.Contains(normalizado) || l.Titulo.Contains(termino));
+        }
+
+        consulta = orden switch
+        {
+            "codigo:desc" => consulta.OrderByDescending(l => l.CodigoNormalizado),
+            "codigo:asc" => consulta.OrderBy(l => l.CodigoNormalizado),
+            "fechaCierre:asc" => consulta.OrderBy(l => l.FechaCierre),
+            _ => consulta.OrderByDescending(l => l.FechaCierre)
+        };
+
+        var total = await consulta.CountAsync(cancelacion);
+        var elementos = await consulta
+            .Skip((pagina - 1) * tamano)
+            .Take(tamano)
+            .ToListAsync(cancelacion);
+
+        return (elementos, total);
+    }
+
+    /// <inheritdoc />
     public void Agregar(Licitacion licitacion) => _contexto.Licitaciones.Add(licitacion);
 
     /// <inheritdoc />

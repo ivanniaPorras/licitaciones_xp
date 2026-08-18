@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.19">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -27,6 +28,7 @@
     <ProjectReference Include="..\..\src\Licitaciones.Domain\Licitaciones.Domain.csproj" />
     <ProjectReference Include="..\..\src\Licitaciones.Application\Licitaciones.Application.csproj" />
     <ProjectReference Include="..\..\src\Licitaciones.Infrastructure\Licitaciones.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Licitaciones.Api\Licitaciones.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,23 @@
+@using Licitaciones.Application.Proveedores
+@model ProveedorResponse
+@{
+    ViewData["Title"] = "Eliminar proveedor";
+}
+
+<h1>Eliminar proveedor</h1>
+
+<div class="alert alert-warning" role="alert">
+    ¿Confirma dar de baja a <strong>@Model.Nombre</strong>?
+    @if (Model.CantidadOfertas > 0)
+    {
+        <text>
+            Tiene @Model.CantidadOfertas oferta(s) registrada(s). El proveedor deja de
+            aparecer en los listados, pero sus ofertas se conservan como evidencia.
+        </text>
+    }
+</div>
+
+<form method="post" asp-action="DeleteConfirmed" asp-route-id="@Model.Id">
+    <button type="submit" class="btn btn-danger">Sí, dar de baja</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>

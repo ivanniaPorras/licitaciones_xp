@@ -1,3 +1,4 @@
+using Licitaciones.Application.Ofertas;
 using Licitaciones.Domain.Dinero;
 using Licitaciones.Domain.Ofertas;
 
@@ -52,6 +53,22 @@ public interface IOfertaRepository
     /// <param name="proveedorId">Proveedor consultado.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
     Task<bool> TieneOfertasElProveedorAsync(Guid proveedorId, CancellationToken cancelacion = default);
+
+    /// <summary>
+    /// Lista las ofertas ya combinadas con el código de su licitación y el nombre de su
+    /// proveedor. La combinación se resuelve en una sola consulta, en lugar de pedirle a
+    /// cada módulo su parte y unirlas en memoria.
+    /// </summary>
+    /// <param name="consulta">Filtros del listado.</param>
+    /// <param name="cancelacion">Testigo de cancelación.</param>
+    Task<(IReadOnlyList<OfertaResponse> Elementos, int Total)> ListarDetalleAsync(
+        ConsultaOfertas consulta,
+        CancellationToken cancelacion = default);
+
+    /// <summary>Consulta una oferta con el detalle de su licitación y su proveedor.</summary>
+    /// <param name="id">Oferta consultada.</param>
+    /// <param name="cancelacion">Testigo de cancelación.</param>
+    Task<OfertaResponse?> ObtenerDetalleAsync(Guid id, CancellationToken cancelacion = default);
 
     /// <summary>Agrega una oferta nueva.</summary>
     /// <param name="oferta">Oferta que se va a guardar.</param>

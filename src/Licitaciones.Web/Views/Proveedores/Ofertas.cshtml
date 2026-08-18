@@ -1,0 +1,41 @@
+@using Licitaciones.Application.Ofertas
+@model IReadOnlyList<OfertaResponse>
+@{
+    var proveedor = (string)ViewData["Proveedor"]!;
+    ViewData["Title"] = $"Ofertas de {proveedor}";
+}
+
+<h1>Ofertas de @proveedor</h1>
+
+@if (Model is null || Model.Count == 0)
+{
+    <p class="text-muted">Este proveedor no ha presentado ofertas.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Licitación</th>
+                    <th scope="col">Monto</th>
+                    <th scope="col">Fecha de registro</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var oferta in Model)
+            {
+                <tr>
+                    <td>@oferta.CodigoLicitacion</td>
+                    <td data-crc="@oferta.MontoOfertadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        @oferta.MontoOfertadoCRC.ToString("C2")
+                    </td>
+                    <td>@oferta.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a class="btn btn-link" asp-action="Index">Volver a proveedores</a>

@@ -1,0 +1,20 @@
+@model (int Pagina, int TotalPaginas, string Accion)
+@if (Model.TotalPaginas > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination">
+            <li class="page-item @(Model.Pagina <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="@Model.Accion" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a>
+            </li>
+            @for (var i = 1; i <= Model.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == Model.Pagina ? "active" : "")">
+                    <a class="page-link" asp-action="@Model.Accion" asp-route-pagina="@i">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.Pagina >= Model.TotalPaginas ? "disabled" : "")">
+                <a class="page-link" asp-action="@Model.Accion" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}

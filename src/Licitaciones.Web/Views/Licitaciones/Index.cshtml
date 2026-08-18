@@ -1,0 +1,95 @@
+@using Licitaciones.Application.Comun
+@using Licitaciones.Application.Licitaciones
+@using Licitaciones.Domain.Licitaciones
+@model PagedResponse<LicitacionResponse>
+@{
+    ViewData["Title"] = "Licitaciones";
+    var orden = Context.Request.Query["orden"].ToString();
+    var estadoActual = Context.Request.Query["estado"].ToString();
+}
+
+<h1>Licitaciones</h1>
+<partial name="_Mensajes" />
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-auto">
+        <label class="visually-hidden" for="busqueda">Buscar licitación</label>
+        <input type="search" class="form-control" id="busqueda" name="busqueda"
+               value="@Context.Request.Query["busqueda"]" placeholder="Código o título" />
+    </div>
+    <div class="col-auto">
+        <label class="visually-hidden" for="estado">Estado</label>
+        <select class="form-select" id="estado" name="estado">
+            <option value="">Todos los estados</option>
+            @foreach (var estado in Enum.GetValues<EstadoLicitacion>())
+            {
+                <option value="@estado" selected="@(estadoActual == estado.ToString())">@estado</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+    </div>
+    <div class="col-auto ms-auto">
+        <a class="btn btn-primary" asp-action="Create">Crear licitación</a>
+    </div>
+</form>
+
+@if (Model is null || Model.Elementos.Count == 0)
+{
+    <p class="text-muted">No hay licitaciones registradas.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <caption>@Model.Total licitaciones</caption>
+            <thead>
+                <tr>
+                    <th scope="col">
+                        <a asp-action="Index" asp-route-orden="@(orden == "codigo:asc" ? "codigo:desc" : "codigo:asc")"
+                           asp-route-estado="@estadoActual">
+                            Código @(orden.StartsWith("codigo", StringComparison.Ordinal) ? (orden.EndsWith("desc", StringComparison.Ordinal) ? "▼" : "▲") : "")
+                        </a>
+                    </th>
+                    <th scope="col">Título</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Presupuesto</th>
+                    <th scope="col">
+                        <a asp-action="Index" asp-route-orden="@(orden == "fechaCierre:asc" ? "fechaCierre:desc" : "fechaCierre:asc")"
+                           asp-route-estado="@estadoActual">
+                            Cierre @(orden.StartsWith("fechaCierre", StringComparison.Ordinal) ? (orden.EndsWith("desc", StringComparison.Ordinal) ? "▼" : "▲") : "")
+                        </a>
+                    </th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var licitacion in Model.Elementos)
+            {
+                <tr>
+                    <td>@licitacion.Codigo</td>
+                    <td>@licitacion.Titulo</td>
+                    <td>
+                        <span class="badge bg-secondary">@licitacion.Estado</span>
+                        @if (licitacion.CerradaFuncionalmente && licitacion.Estado != EstadoLicitacion.Cerrada)
+                        {
+                            <span class="badge bg-warning text-dark" title="La fecha de cierre ya pasó">Vencida</span>
+                        }
+                    </td>
+                    <td data-crc="@licitacion.PresupuestoEstimadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        @licitacion.PresupuestoEstimadoCRC.ToString("C2")
+                    </td>
+                    <td>@licitacion.FechaCierre.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@licitacion.Id">Ver</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Ofertas" asp-route-id="@licitacion.Id">Ofertas</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Paginacion" model="@((Model.Pagina, Model.TotalPaginas, "Index"))" />
+}

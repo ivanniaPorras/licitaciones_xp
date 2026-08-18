@@ -22,6 +22,21 @@ public interface ILicitacionRepository
         Guid? excluyendoId = null,
         CancellationToken cancelacion = default);
 
+    /// <summary>Lista las licitaciones vigentes con paginación, filtrado y ordenamiento.</summary>
+    /// <param name="busqueda">Término que se busca en el código o el título.</param>
+    /// <param name="orden">Campo y dirección de ordenamiento.</param>
+    /// <param name="estado">Estado por el que se filtra, o <c>null</c> para todos.</param>
+    /// <param name="pagina">Número de página, empezando en 1.</param>
+    /// <param name="tamano">Elementos por página.</param>
+    /// <param name="cancelacion">Testigo de cancelación.</param>
+    Task<(IReadOnlyList<Licitacion> Elementos, int Total)> ListarAsync(
+        string? busqueda,
+        string? orden,
+        EstadoLicitacion? estado,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default);
+
     /// <summary>Agrega una licitación nueva.</summary>
     /// <param name="licitacion">Licitación que se va a guardar.</param>
     void Agregar(Licitacion licitacion);
