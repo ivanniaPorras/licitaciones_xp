@@ -49,6 +49,9 @@ public static class CodigosError
     /// <summary>La oferta solicitada no existe.</summary>
     public const string OfertaNoEncontrada = "OFERTA_NO_ENCONTRADA";
 
+    /// <summary>La oferta pertenece a una licitación cerrada y no admite cambios.</summary>
+    public const string OfertaInmutable = "OFERTA_INMUTABLE";
+
     /// <summary>El rango de aprobación se traslapa con otro ya existente.</summary>
     public const string RangoTraslapado = "RANGO_TRASLAPADO";
 

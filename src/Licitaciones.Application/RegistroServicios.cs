@@ -1,4 +1,5 @@
 using Licitaciones.Application.Licitaciones;
+using Licitaciones.Application.Ofertas;
 using Licitaciones.Application.Proveedores;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,7 @@ public static class RegistroServicios
     {
         servicios.AddScoped<IProveedorService, ProveedorService>();
         servicios.AddScoped<ILicitacionService, LicitacionService>();
+        servicios.AddScoped<IOfertaService, OfertaService>();
 
         return servicios;
     }
