@@ -1,0 +1,70 @@
+@using Licitaciones.Application.Comun
+@using Licitaciones.Application.Proveedores
+@model PagedResponse<ProveedorResponse>
+@{
+    ViewData["Title"] = "Proveedores";
+    var orden = Context.Request.Query["orden"].ToString();
+}
+
+<h1>Proveedores</h1>
+<partial name="_Mensajes" />
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-auto">
+        <label class="visually-hidden" for="busqueda">Buscar proveedor</label>
+        <input type="search" class="form-control" id="busqueda" name="busqueda"
+               value="@Context.Request.Query["busqueda"]" placeholder="Buscar por nombre" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+    </div>
+    <div class="col-auto ms-auto">
+        <a class="btn btn-primary" asp-action="Create">Registrar proveedor</a>
+    </div>
+</form>
+
+@if (Model is null || Model.Elementos.Count == 0)
+{
+    <p class="text-muted">No hay proveedores registrados.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <caption>@Model.Total proveedores registrados</caption>
+            <thead>
+                <tr>
+                    <th scope="col">
+                        <a asp-action="Index"
+                           asp-route-orden="@(orden == "nombre:asc" ? "nombre:desc" : "nombre:asc")"
+                           asp-route-busqueda="@Context.Request.Query["busqueda"]">
+                            Nombre @(orden.StartsWith("nombre", StringComparison.Ordinal) ? (orden.EndsWith("desc", StringComparison.Ordinal) ? "▼" : "▲") : "")
+                        </a>
+                    </th>
+                    <th scope="col">
+                        <a asp-action="Index" asp-route-orden="creacion:desc"
+                           asp-route-busqueda="@Context.Request.Query["busqueda"]">Registrado</a>
+                    </th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var proveedor in Model.Elementos)
+            {
+                <tr>
+                    <td>@proveedor.Nombre</td>
+                    <td>@proveedor.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@proveedor.Id">Ver</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@proveedor.Id">Editar</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Ofertas" asp-route-id="@proveedor.Id">Ofertas</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@proveedor.Id">Eliminar</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Paginacion" model="@((Model.Pagina, Model.TotalPaginas, "Index"))" />
+}

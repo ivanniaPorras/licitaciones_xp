@@ -1,0 +1,19 @@
+using Licitaciones.Application.Proveedores;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Licitaciones.Application;
+
+/// <summary>
+/// Registra los servicios de aplicación en el contenedor de dependencias.
+/// </summary>
+public static class RegistroServicios
+{
+    /// <summary>Registra los casos de uso de todos los módulos.</summary>
+    /// <param name="servicios">Colección de servicios de la aplicación.</param>
+    public static IServiceCollection AgregarAplicacion(this IServiceCollection servicios)
+    {
+        servicios.AddScoped<IProveedorService, ProveedorService>();
+
+        return servicios;
+    }
+}

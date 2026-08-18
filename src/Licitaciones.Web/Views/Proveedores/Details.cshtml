@@ -1,0 +1,22 @@
+@using Licitaciones.Application.Proveedores
+@model ProveedorResponse
+@{
+    ViewData["Title"] = Model.Nombre;
+}
+
+<h1>@Model.Nombre</h1>
+<partial name="_Mensajes" />
+
+<dl class="row">
+    <dt class="col-sm-3">Ofertas presentadas</dt>
+    <dd class="col-sm-9">@Model.CantidadOfertas</dd>
+    <dt class="col-sm-3">Registrado</dt>
+    <dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+    <dt class="col-sm-3">Última modificación</dt>
+    <dd class="col-sm-9">@Model.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+</dl>
+
+<a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
+<a class="btn btn-outline-secondary" asp-action="Ofertas" asp-route-id="@Model.Id">Ver ofertas</a>
+<a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@Model.Id">Eliminar</a>
+<a class="btn btn-link" asp-action="Index">Volver</a>
