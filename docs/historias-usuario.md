@@ -42,8 +42,8 @@ Definida por el cliente:
 | HU-010 | Persistencia en PostgreSQL con datos iniciales | Alta | 5 | 2 | Terminada |
 | HU-011 | Registro automático de fechas y borrado lógico | Media | 3 | 2 | Terminada |
 | HU-012 | Protección ante ediciones simultáneas | Media | 3 | 2 | Terminada |
-| HU-013 | Administrar proveedores | Alta | 5 | 2 | Pendiente |
-| HU-014 | Consultar las ofertas de un proveedor | Media | 2 | 2 | Pendiente |
+| HU-013 | Administrar proveedores | Alta | 5 | 2 | Terminada |
+| HU-014 | Consultar las ofertas de un proveedor | Media | 2 | 2 | Terminada |
 | HU-015 | Administrar licitaciones | Alta | 5 | 2 | Pendiente |
 | HU-016 | Cambiar el estado de una licitación | Alta | 3 | 2 | Pendiente |
 | HU-017 | No reducir el presupuesto bajo una oferta existente | Alta | 3 | 2 | Pendiente |
@@ -400,8 +400,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 6. Las mismas operaciones están disponibles por la API.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ProveedorServiceTests` (13 casos), `ProveedoresEndpointsTests` (7 casos)
+- Commits: `706b431` (rojo), `b622a85` (verde), `0363b06` (interfaz), `1b373af` (API)
 - Documentación: [modulos/proveedores.md](modulos/proveedores.md)
 
 ---
@@ -422,8 +422,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    una tabla vacía.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ProveedorServiceTests.ObtenerOfertas_DevuelveLasDelProveedor`
+- Commits: `706b431` (rojo), `b622a85` (verde), `0363b06` (interfaz)
 - Documentación: [modulos/proveedores.md](modulos/proveedores.md)
 
 ---

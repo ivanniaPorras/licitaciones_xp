@@ -1,7 +1,7 @@
 # Módulo: Proveedores
 
-> Estado: **capa de dominio terminada** (entrega 3). La persistencia, la interfaz y la API
-> se completan en las entregas 4 y 5. Referencia de navegación: [../README.md](../README.md).
+> Estado: **terminado** (entrega 5).
+> Referencia de navegación: [../README.md](../README.md).
 
 ## 1. Propósito
 
@@ -13,56 +13,74 @@ cada una figure una sola vez.
 - Reconocer que dos nombres escritos de forma distinta designan al mismo proveedor.
 - Rechazar nombres con caracteres que no corresponden a una razón social.
 - Conservar el nombre tal como lo escribió la persona usuaria, sin imponerle un formato.
-- Impedir el borrado físico cuando existen ofertas relacionadas *(entrega 5)*.
+- Dar de baja de forma lógica, conservando las ofertas asociadas.
+- Consultar las ofertas presentadas por un proveedor.
 
 ## 3. Dependencias
 
-Ninguna. Es el módulo más independiente del sistema: no conoce licitaciones ni ofertas.
+- `Licitaciones.Domain.Proveedores`: `Proveedor`, `NormalizadorNombreProveedor`,
+  `ValidadorNombreProveedor`.
+- `Licitaciones.Application.Persistencia`: `IProveedorRepository`, `IOfertaRepository`,
+  `IUnitOfWork`.
+
+No conoce el módulo de licitaciones. Es el módulo más independiente del sistema.
 
 ## 4. Entradas
 
 | Entrada | Origen | Formato |
 |---|---|---|
-| Nombre del proveedor | MVC / API *(entrega 5)* | `Proveedor.Crear(nombre)` |
-| Nuevo nombre | MVC / API *(entrega 5)* | `Proveedor.Renombrar(nombre)` |
+| `CrearProveedorRequest` | MVC / API | `{ nombre }` |
+| `ActualizarProveedorRequest` | MVC / API | `{ nombre }` |
+| `ConsultaProveedores` | MVC / API | `{ pagina, tamano, orden, busqueda }` |
 
 ## 5. Salidas
 
 | Salida | Destino | Formato |
 |---|---|---|
-| Proveedor creado | Repositorio | Entidad con `Nombre` y `NombreNormalizado` |
-| Forma comparable de un nombre | Índice único de PostgreSQL | `NormalizadorNombreProveedor.Normalizar(nombre)` |
+| `ProveedorResponse` | MVC / API | `{ id, nombre, cantidadOfertas, createdAt, updatedAt }` |
+| `PagedResponse<ProveedorResponse>` | MVC / API | `{ elementos, pagina, tamano, total, totalPaginas }` |
+| `OfertaResponse` | MVC / API | Ofertas del proveedor con el código de su licitación |
 
 ## 6. Reglas
 
 | ID | Regla | Dónde vive |
 |----|-------|-----------|
-| R09 | El nombre es único tras recortar, colapsar espacios, normalizar Unicode y pasar a minúsculas | `NormalizadorNombreProveedor` |
+| R09 | El nombre es único tras normalizar | `ProveedorService` + índice único parcial |
 | R10 | Solo se admiten letras, números, espacios, punto, coma y paréntesis | `ValidadorNombreProveedor` |
-| R22 | No se elimina físicamente un proveedor con ofertas *(entrega 5)* | pendiente |
+| R22 | No se elimina físicamente un proveedor con ofertas | Borrado lógico + clave foránea restrictiva |
 
-### Por qué la normalización Unicode va primero
+### Validación en tres capas
 
-`Normalizar` aplica la forma **KC** de Unicode antes que cualquier otro paso. El orden
-importa por dos motivos:
+| Capa | Mecanismo |
+|---|---|
+| Interfaz | Atributos `required`, `maxlength` y `pattern` en el formulario |
+| Servidor | `ProveedorService` consulta `ExisteNombreAsync` antes de persistir |
+| PostgreSQL | Índice único parcial sobre `nombre_normalizado` |
 
-1. La misma letra puede escribirse como carácter precompuesto o como letra base más marca
-   combinante. Sin unificar esas formas, `Compañía` y `Compañía` serían proveedores
-   distintos aunque se lean igual.
-2. La forma de compatibilidad convierte separadores como el espacio duro en el espacio
-   ordinario, que es el que el paso siguiente sabe colapsar. Si se colapsaran los espacios
-   primero, un espacio duro sobreviviría y produciría un duplicado.
+La tercera capa no es redundante: entre la consulta del servidor y la escritura hay una
+ventana en la que otra petición puede insertar el mismo nombre. Si eso ocurre, el índice
+dispara y `TraductorErroresPostgres` devuelve el mismo mensaje controlado.
 
-La expresión regular de caracteres admitidos usa `\p{L}` y `\p{N}` en lugar de rangos
-ASCII, para no rechazar nombres con tildes o eñe.
+### Por qué la baja no comprueba si hay ofertas
+
+El borrado es **lógico**: la fila se conserva con su fecha de baja y desaparece de los
+listados por el filtro global. Las ofertas que la referencian siguen siendo legibles, así
+que no hace falta bloquear la operación. La clave foránea restrictiva impide, además, que
+alguien la borre físicamente por otra vía.
+
+### Al editar, el proveedor no compite consigo mismo
+
+`ExisteNombreAsync` recibe el identificador que se está editando y lo excluye de la
+comparación. Sin eso, guardar un proveedor sin cambiarle el nombre se rechazaría como
+duplicado de sí mismo.
 
 ## 7. Errores
 
 | Código | HTTP | Mensaje |
 |--------|------|---------|
 | `PROVEEDOR_DUPLICADO` | 409 | Ya existe un proveedor con ese nombre. |
-| `NOMBRE_INVALIDO` | 422 | El nombre solo admite letras, números, espacios, punto, coma y paréntesis. |
-| `PROVEEDOR_CON_OFERTAS` | 409 | No se puede eliminar: existen ofertas relacionadas. |
+| `NOMBRE_PROVEEDOR_INVALIDO` | 422 | El nombre solo admite letras, números, espacios, punto, coma y paréntesis. |
+| `PROVEEDOR_NO_ENCONTRADO` | 404 | El proveedor solicitado no existe. |
 
 ## 8. Pruebas
 
@@ -70,7 +88,7 @@ ASCII, para no rechazar nombres con tildes o eñe.
 |--------|------|-------|
 | `NormalizadorNombreProveedorTests` | Unitaria | R09 |
 | `ValidadorNombreProveedorTests` | Unitaria | R10 |
-| `EntidadesDominioTests` | Unitaria | R09, R10 |
-
-Los casos de escritura equivalente y los símbolos rechazados están tomados literalmente de
-los ejemplos del enunciado.
+| `ProveedorServiceTests` | Unitaria | R09, R10, R22 |
+| `RestriccionesTests` | Integración | R09 en la base |
+| `RepositoriosTests` | Integración | Unicidad normalizada y exclusión al editar |
+| `ProveedoresEndpointsTests` | Integración | Códigos HTTP y `ProblemDetails` |
