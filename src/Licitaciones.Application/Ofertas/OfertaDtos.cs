@@ -8,6 +8,13 @@ namespace Licitaciones.Application.Ofertas;
 /// <param name="MontoOfertadoCRC">Monto propuesto en colones.</param>
 public sealed record CrearOfertaRequest(Guid LicitacionId, Guid ProveedorId, decimal MontoOfertadoCRC);
 
+/// <summary>
+/// Datos para registrar una oferta cuando la licitación ya viene indicada en la ruta.
+/// </summary>
+/// <param name="ProveedorId">Proveedor que la presenta.</param>
+/// <param name="MontoOfertadoCRC">Monto propuesto en colones.</param>
+public sealed record CrearOfertaEnLicitacionRequest(Guid ProveedorId, decimal MontoOfertadoCRC);
+
 /// <summary>Datos para modificar el monto de una oferta.</summary>
 /// <param name="MontoOfertadoCRC">Nuevo monto en colones.</param>
 public sealed record ActualizarOfertaRequest(decimal MontoOfertadoCRC);

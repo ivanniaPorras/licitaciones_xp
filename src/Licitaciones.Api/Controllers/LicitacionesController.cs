@@ -14,10 +14,16 @@ namespace Licitaciones.Api.Controllers;
 public sealed class LicitacionesController : ControladorApiBase
 {
     private readonly ILicitacionService _licitaciones;
+    private readonly IOfertaService _ofertas;
 
     /// <summary>Crea el controlador.</summary>
     /// <param name="licitaciones">Casos de uso de licitaciones.</param>
-    public LicitacionesController(ILicitacionService licitaciones) => _licitaciones = licitaciones;
+    /// <param name="ofertas">Casos de uso de ofertas.</param>
+    public LicitacionesController(ILicitacionService licitaciones, IOfertaService ofertas)
+    {
+        _licitaciones = licitaciones;
+        _ofertas = ofertas;
+    }
 
     /// <summary>Lista las licitaciones con paginación, filtrado y ordenamiento.</summary>
     /// <param name="consulta">Página, tamaño, orden, búsqueda y estado.</param>
@@ -133,6 +139,35 @@ public sealed class LicitacionesController : ControladorApiBase
         var resultado = await _licitaciones.ObtenerOfertasAsync(id, cancelacion);
 
         return resultado.EsCorrecto ? Ok(resultado.Valor) : AProblema(resultado.Error!);
+    }
+
+    /// <summary>Registra una oferta sobre esta licitación.</summary>
+    /// <param name="id">Licitación a la que se presenta.</param>
+    /// <param name="peticion">Proveedor y monto.</param>
+    /// <param name="cancelacion">Testigo de cancelación.</param>
+    [HttpPost("{id:guid}/ofertas")]
+    [ProducesResponseType<OfertaResponse>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<OfertaResponse>> CrearOferta(
+        Guid id,
+        CrearOfertaEnLicitacionRequest peticion,
+        CancellationToken cancelacion)
+    {
+        ArgumentNullException.ThrowIfNull(peticion);
+
+        // La licitación viene de la ruta, no del cuerpo: la ruta es la fuente de verdad.
+        var resultado = await _ofertas.CrearAsync(
+            new CrearOfertaRequest(id, peticion.ProveedorId, peticion.MontoOfertadoCRC),
+            cancelacion);
+
+        if (!resultado.EsCorrecto)
+        {
+            return AProblema(resultado.Error!);
+        }
+
+        return Created($"/api/v1/ofertas/{resultado.Valor!.Id}", resultado.Valor);
     }
 
     /// <summary>Consulta la mejor oferta con su ahorro y su clasificación.</summary>
