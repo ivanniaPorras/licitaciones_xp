@@ -1,0 +1,79 @@
+@using Licitaciones.Application.Licitaciones
+@using Licitaciones.Application.Ofertas
+@model IReadOnlyList<OfertaResponse>
+@{
+    var licitacion = (LicitacionResponse)ViewData["Licitacion"]!;
+    var mejor = (MejorOfertaResponse)ViewData["MejorOferta"]!;
+    ViewData["Title"] = $"Ofertas de {licitacion.Codigo}";
+}
+
+<h1>Ofertas de @licitacion.Codigo</h1>
+<partial name="_Mensajes" />
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5 card-title">Mejor oferta</h2>
+        @if (mejor.Oferta is null)
+        {
+            <p class="card-text"><strong>@mejor.Clasificacion</strong></p>
+        }
+        else
+        {
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Proveedor</dt>
+                <dd class="col-sm-8">@mejor.Oferta.NombreProveedor</dd>
+
+                <dt class="col-sm-4">Monto ofertado</dt>
+                <dd class="col-sm-8" data-crc="@mejor.Oferta.MontoOfertadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                    @mejor.Oferta.MontoOfertadoCRC.ToString("C2")
+                </dd>
+
+                <dt class="col-sm-4">Presupuesto</dt>
+                <dd class="col-sm-8" data-crc="@mejor.PresupuestoEstimadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                    @mejor.PresupuestoEstimadoCRC.ToString("C2")
+                </dd>
+
+                <dt class="col-sm-4">Ahorro</dt>
+                <dd class="col-sm-8">@mejor.PorcentajeAhorro?.ToString("N2") %</dd>
+
+                <dt class="col-sm-4">Clasificación</dt>
+                <dd class="col-sm-8"><strong>@mejor.Clasificacion</strong></dd>
+            </dl>
+        }
+    </div>
+</div>
+
+<h2 class="h4">Todas las ofertas</h2>
+
+@if (Model is null || Model.Count == 0)
+{
+    <p class="text-muted">Esta licitación no ha recibido ofertas.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Proveedor</th>
+                    <th scope="col">Monto</th>
+                    <th scope="col">Fecha de registro</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var oferta in Model)
+            {
+                <tr class="@(oferta.Id == mejor.Oferta?.Id ? "table-success" : "")">
+                    <td>@oferta.NombreProveedor</td>
+                    <td data-crc="@oferta.MontoOfertadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        @oferta.MontoOfertadoCRC.ToString("C2")
+                    </td>
+                    <td>@oferta.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a class="btn btn-link" asp-action="Details" asp-route-id="@licitacion.Id">Volver a la licitación</a>
