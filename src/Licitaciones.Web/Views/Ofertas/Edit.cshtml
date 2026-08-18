@@ -1,0 +1,29 @@
+@using Licitaciones.Application.Ofertas
+@model ActualizarOfertaRequest
+@{
+    ViewData["Title"] = "Editar oferta";
+    var id = (Guid)ViewData["Id"]!;
+    var oferta = (OfertaResponse?)ViewData["Oferta"];
+}
+
+<h1>Editar oferta</h1>
+@if (oferta is not null)
+{
+    <p class="text-muted">@oferta.CodigoLicitacion — @oferta.NombreProveedor</p>
+}
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form method="post" asp-action="Edit" asp-route-id="@id" class="col-md-6">
+    <div class="mb-3">
+        <label class="form-label" for="MontoOfertadoCRC">Monto ofertado (CRC)</label>
+        <input class="form-control" id="MontoOfertadoCRC" name="MontoOfertadoCRC"
+               type="number" step="0.01" min="0.01" inputmode="decimal" required
+               value="@Model.MontoOfertadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+        <span asp-validation-for="MontoOfertadoCRC" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-id="@id">Cancelar</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

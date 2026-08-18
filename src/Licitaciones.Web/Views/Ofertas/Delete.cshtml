@@ -1,0 +1,19 @@
+@using Licitaciones.Application.Ofertas
+@model OfertaResponse
+@{
+    ViewData["Title"] = "Eliminar oferta";
+}
+
+<h1>Eliminar oferta</h1>
+
+<div class="alert alert-warning" role="alert">
+    ¿Confirma eliminar la oferta de <strong>@Model.NombreProveedor</strong> por
+    <strong>@Model.MontoOfertadoCRC.ToString("C2")</strong> en la licitación
+    <strong>@Model.CodigoLicitacion</strong>?
+    Esta acción no se puede deshacer.
+</div>
+
+<form method="post" asp-action="DeleteConfirmed" asp-route-id="@Model.Id">
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.Id">Cancelar</a>
+</form>
