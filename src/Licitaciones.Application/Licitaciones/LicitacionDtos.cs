@@ -66,12 +66,17 @@ public sealed record LicitacionResponse(
 /// Etiqueta acordada con el cliente: "Sin ofertas válidas", "Oferta conveniente",
 /// "Oferta aceptable" u "Oferta válida sin ahorro".
 /// </param>
+/// <param name="Aprobador">
+/// Instancia con autoridad para autorizar el monto de la mejor oferta, resuelta contra la
+/// tabla de niveles. Es <c>null</c> si no hay ofertas o si ningún rango cubre el monto.
+/// </param>
 public sealed record MejorOfertaResponse(
     Guid LicitacionId,
     decimal PresupuestoEstimadoCRC,
     OfertaResponse? Oferta,
     decimal? PorcentajeAhorro,
-    string Clasificacion);
+    string Clasificacion,
+    string? Aprobador);
 
 /// <summary>Filtros del listado de licitaciones.</summary>
 public sealed record ConsultaLicitaciones : ConsultaPaginada

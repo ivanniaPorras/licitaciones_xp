@@ -1,3 +1,4 @@
+using Licitaciones.Application.Aprobacion;
 using Licitaciones.Application.Licitaciones;
 using Licitaciones.Application.Ofertas;
 using Licitaciones.Application.Proveedores;
@@ -17,6 +18,7 @@ public static class RegistroServicios
         servicios.AddScoped<IProveedorService, ProveedorService>();
         servicios.AddScoped<ILicitacionService, LicitacionService>();
         servicios.AddScoped<IOfertaService, OfertaService>();
+        servicios.AddScoped<INivelAprobacionService, NivelAprobacionService>();
 
         return servicios;
     }

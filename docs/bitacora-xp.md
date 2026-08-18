@@ -108,6 +108,25 @@ Testcontainers. Ninguna usa base en memoria.
 Estas tres historias pertenecen a la iteración 2 y se adelantaron respecto del plan, que
 las situaba después del cierre de la iteración 1.
 
+**Entregas 5 a 8 — Verticales completas de los cuatro módulos (HU-013 a HU-025, terminadas).**
+
+Se construyeron las cuatro verticales que faltaban de la primera mitad: proveedores,
+licitaciones, ofertas y niveles de aprobación. Cada una abarca servicio de aplicación con
+sus objetos de transferencia, pantallas MVC y endpoints de la API.
+
+La entrega 5 trajo además la infraestructura compartida que usan las tres siguientes y
+que la persona B necesitará: `Result<T>`, los códigos de error con su traducción a 404,
+409 y 422, la respuesta paginada, el arranque de la aplicación con la conexión por
+variable de entorno y la cultura `es-CR`, el versionado `api/v1`, la documentación
+OpenAPI y el middleware global de excepciones.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 204 superadas |
+| `dotnet test` integración | 75 superadas |
+
 ### Decisiones tomadas
 
 | Decisión | Razón |
@@ -140,6 +159,10 @@ las situaba después del cierre de la iteración 1.
 | HU-010 | `ea8bc60` | `99304a1` | — |
 | HU-011 | `0b2c931` | `d1220d1` | — |
 | HU-012 | `0b2c931` | `d1220d1` | — |
+| HU-013, HU-014 | `706b431` | `b622a85` | — |
+| HU-015 a HU-017 | `72f5790` | `f4be3f1` | — |
+| HU-018 a HU-022 | `f9c9efe` | `bd80333` | `30b13d7` |
+| HU-024, HU-025 | `fe9d765` | `e5c4ad8` | — |
 
 > HU-001 es una historia de preparación del repositorio: la prueba de arquitectura y la
 > estructura que verifica se crearon en el mismo commit porque la prueba no puede existir
@@ -172,6 +195,13 @@ las situaba después del cierre de la iteración 1.
   `timestamp with time zone`. En vez de convertir a mano en cada llamada, se añadió una
   convención del modelo que lleva toda fecha a tiempo universal en el límite de la
   persistencia. La regla de "comparar siempre en UTC" pasó así a cumplirse sola.
+
+- **Entrega 7** — Las primeras pruebas de los endpoints de ofertas devolvieron 500. La
+  consulta que combinaba la oferta con su licitación y su proveedor filtraba y ordenaba
+  **sobre el tipo ya proyectado**, algo que Entity Framework Core no puede traducir a SQL,
+  y además intentaba evaluar `Monto.Valor` sobre un objeto de valor con conversor. Se
+  reescribió para filtrar y ordenar sobre las entidades y combinar después
+  (`30b13d7`). Sin las pruebas de endpoint el fallo habría llegado a la interfaz.
 
 ### Salvedad sobre el ciclo en la entrega 4
 

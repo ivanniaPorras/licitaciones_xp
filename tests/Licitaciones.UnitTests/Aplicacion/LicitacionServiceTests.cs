@@ -1,3 +1,4 @@
+using Licitaciones.Application.Aprobacion;
 using Licitaciones.Application.Comun;
 using Licitaciones.Application.Licitaciones;
 using Licitaciones.Domain.Licitaciones;
@@ -20,8 +21,14 @@ public sealed class LicitacionServiceTests
     private readonly RepositorioOfertasEnMemoria _ofertas = new();
     private readonly UnidadDeTrabajoFalsa _unidad = new();
     private readonly RelojFalso _reloj = new(Ahora);
+    private readonly RepositorioNivelesAprobacionEnMemoria _niveles = new();
 
-    private LicitacionService CrearServicio() => new(_licitaciones, _ofertas, _unidad, _reloj);
+    private LicitacionService CrearServicio() => new(
+        _licitaciones,
+        _ofertas,
+        _unidad,
+        _reloj,
+        new NivelAprobacionService(_niveles, _unidad));
 
     private static CrearLicitacionRequest Peticion(
         string codigo = "LIC-001",

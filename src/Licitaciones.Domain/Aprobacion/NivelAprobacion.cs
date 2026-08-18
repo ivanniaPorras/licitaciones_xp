@@ -71,6 +71,23 @@ public sealed class NivelAprobacion : IAuditable
         return new NivelAprobacion(minimo, maximo, aprobador.Trim());
     }
 
+    /// <summary>Cambia los límites del rango y la persona aprobadora.</summary>
+    /// <param name="montoMinimoCRC">Nuevo monto mínimo, inclusivo.</param>
+    /// <param name="montoMaximoCRC">Nuevo monto máximo inclusivo, o <c>null</c> para un rango abierto.</param>
+    /// <param name="aprobador">Nueva instancia aprobadora.</param>
+    /// <exception cref="MontoInvalidoException">Si algún monto no es mayor que cero.</exception>
+    /// <exception cref="RangoAprobacionInvalidoException">
+    /// Si el máximo es menor que el mínimo o si no se indica la persona aprobadora.
+    /// </exception>
+    public void CambiarRango(decimal montoMinimoCRC, decimal? montoMaximoCRC, string aprobador)
+    {
+        var propuesto = Crear(montoMinimoCRC, montoMaximoCRC, aprobador);
+
+        MontoMinimo = propuesto.MontoMinimo;
+        MontoMaximo = propuesto.MontoMaximo;
+        Aprobador = propuesto.Aprobador;
+    }
+
     /// <summary>Indica si el monto cae dentro del rango, con ambos límites inclusivos.</summary>
     /// <param name="monto">Monto que se quiere aprobar.</param>
     public bool Cubre(MontoCRC monto) =>

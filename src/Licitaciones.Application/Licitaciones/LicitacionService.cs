@@ -1,4 +1,5 @@
 using System.Globalization;
+using Licitaciones.Application.Aprobacion;
 using Licitaciones.Application.Comun;
 using Licitaciones.Application.Ofertas;
 using Licitaciones.Application.Persistencia;
@@ -16,22 +17,26 @@ public sealed class LicitacionService : ILicitacionService
     private readonly IOfertaRepository _ofertas;
     private readonly IUnitOfWork _unidadDeTrabajo;
     private readonly IClock _reloj;
+    private readonly INivelAprobacionService _niveles;
 
     /// <summary>Crea el servicio con sus dependencias.</summary>
     /// <param name="licitaciones">Acceso a las licitaciones.</param>
     /// <param name="ofertas">Acceso a las ofertas.</param>
     /// <param name="unidadDeTrabajo">Confirmación de los cambios.</param>
     /// <param name="reloj">Reloj del que se toma el instante actual.</param>
+    /// <param name="niveles">Casos de uso de niveles, para resolver el aprobador.</param>
     public LicitacionService(
         ILicitacionRepository licitaciones,
         IOfertaRepository ofertas,
         IUnitOfWork unidadDeTrabajo,
-        IClock reloj)
+        IClock reloj,
+        INivelAprobacionService niveles)
     {
         _licitaciones = licitaciones;
         _ofertas = ofertas;
         _unidadDeTrabajo = unidadDeTrabajo;
         _reloj = reloj;
+        _niveles = niveles;
     }
 
     /// <inheritdoc />
@@ -251,9 +256,15 @@ public sealed class LicitacionService : ILicitacionService
         var clasificacion = ClasificadorAhorro.Clasificar(licitacion.PresupuestoEstimado, mejor?.Monto);
 
         OfertaResponse? detalle = null;
+        string? aprobador = null;
         if (mejor is not null)
         {
             detalle = await _ofertas.ObtenerDetalleAsync(mejor.Id, cancelacion);
+
+            // El aprobador se pide al módulo de niveles, no se calcula aquí: la política
+            // de autorización es suya y se resuelve consultando su tabla.
+            var nivel = await _niveles.ObtenerAprobadorAsync(mejor.Monto.Valor, cancelacion);
+            aprobador = nivel.EsCorrecto ? nivel.Valor!.Aprobador : null;
         }
 
         return Result<MejorOfertaResponse>.Correcto(new MejorOfertaResponse(
@@ -261,7 +272,8 @@ public sealed class LicitacionService : ILicitacionService
             licitacion.PresupuestoEstimado.Valor,
             detalle,
             clasificacion.PorcentajeAhorro,
-            clasificacion.Etiqueta));
+            clasificacion.Etiqueta,
+            aprobador));
     }
 
     private static ErrorAplicacion NoEncontrada() => ErrorAplicacion.NoEncontrado(
