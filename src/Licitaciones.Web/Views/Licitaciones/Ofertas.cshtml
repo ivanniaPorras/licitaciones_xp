@@ -38,6 +38,11 @@
 
                 <dt class="col-sm-4">Clasificación</dt>
                 <dd class="col-sm-8"><strong>@mejor.Clasificacion</strong></dd>
+
+                <dt class="col-sm-4">Aprobador</dt>
+                <dd class="col-sm-8">
+                    @(mejor.Aprobador ?? "Ningún nivel de aprobación cubre este monto")
+                </dd>
             </dl>
         }
     </div>

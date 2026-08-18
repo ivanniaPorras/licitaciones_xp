@@ -53,8 +53,8 @@ Definida por el cliente:
 | HU-021 | Impedir ofertas fuera del período de recepción | Alta | 3 | 3 | Terminada |
 | HU-022 | Preservar las ofertas de licitaciones cerradas | Alta | 3 | 3 | Terminada |
 | HU-023 | Consultar la mejor oferta con su clasificación | Alta | 3 | 3 | Terminada |
-| HU-024 | Administrar niveles de aprobación sin traslape | Alta | 5 | 3 | Pendiente |
-| HU-025 | Conocer quién debe aprobar un monto | Alta | 3 | 3 | Pendiente |
+| HU-024 | Administrar niveles de aprobación sin traslape | Alta | 5 | 3 | Terminada |
+| HU-025 | Conocer quién debe aprobar un monto | Alta | 3 | 3 | Terminada |
 | HU-026 | Administrar el tipo de cambio vigente | Alta | 5 | 3 | Pendiente |
 | HU-027 | Ver los montos en dólares | Alta | 3 | 3 | Pendiente |
 | HU-028 | Página inicial explicativa y navegación | Alta | 5 | 4 | Pendiente |
@@ -669,8 +669,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    transacción.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `NivelAprobacionServiceTests` (18 casos), `NivelesAprobacionEndpointsTests`
+- Commits: `fe9d765` (rojo), `e5c4ad8` (verde)
 - Documentación: [modulos/niveles-aprobacion.md](modulos/niveles-aprobacion.md)
 
 ---
@@ -696,8 +696,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 8. Si ningún rango aplica al monto, se muestra un mensaje controlado en lugar de fallar.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `NivelAprobacionServiceTests.ObtenerAprobador_*` (8 límites), `RepositoriosTests`, `NivelesAprobacionEndpointsTests`
+- Commits: `fe9d765` (rojo), `e5c4ad8` (verde)
 - Documentación: [modulos/niveles-aprobacion.md](modulos/niveles-aprobacion.md)
 
 ---

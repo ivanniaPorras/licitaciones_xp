@@ -1,0 +1,17 @@
+@using Licitaciones.Application.Aprobacion
+@model NivelAprobacionResponse
+@{
+    ViewData["Title"] = "Eliminar nivel de aprobación";
+}
+
+<h1>Eliminar nivel de aprobación</h1>
+
+<div class="alert alert-warning" role="alert">
+    ¿Confirma eliminar el nivel de <strong>@Model.Aprobador</strong>?
+    Los montos que hoy cubre quedarán sin aprobador asignado hasta que se defina otro rango.
+</div>
+
+<form method="post" asp-action="DeleteConfirmed" asp-route-id="@Model.Id">
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>

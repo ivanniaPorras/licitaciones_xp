@@ -1,0 +1,62 @@
+@using Licitaciones.Application.Aprobacion
+@model IReadOnlyList<NivelAprobacionResponse>
+@{
+    ViewData["Title"] = "Niveles de aprobación";
+}
+
+<h1>Niveles de aprobación</h1>
+<partial name="_Mensajes" />
+
+<p class="text-muted">
+    La política de autorización vive en esta tabla. Los rangos no pueden traslaparse y
+    solo uno puede quedar sin monto máximo.
+</p>
+
+<p><a class="btn btn-primary" asp-action="Create">Agregar nivel</a></p>
+
+@if (Model is null || Model.Count == 0)
+{
+    <p class="text-muted">No hay niveles de aprobación registrados.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Monto mínimo</th>
+                    <th scope="col">Monto máximo</th>
+                    <th scope="col">Aprobador</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var nivel in Model)
+            {
+                <tr>
+                    <td data-crc="@nivel.MontoMinimoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        @nivel.MontoMinimoCRC.ToString("C2")
+                    </td>
+                    <td>
+                        @if (nivel.EsRangoAbierto)
+                        {
+                            <span class="badge bg-info text-dark">Sin límite</span>
+                        }
+                        else
+                        {
+                            <span data-crc="@nivel.MontoMaximoCRC!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                @nivel.MontoMaximoCRC.Value.ToString("C2")
+                            </span>
+                        }
+                    </td>
+                    <td>@nivel.Aprobador</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@nivel.Id">Editar</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@nivel.Id">Eliminar</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

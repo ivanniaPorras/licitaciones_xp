@@ -1,0 +1,20 @@
+@using Licitaciones.Application.Aprobacion
+@model NivelAprobacionResponse
+@{
+    ViewData["Title"] = Model.Aprobador;
+}
+
+<h1>@Model.Aprobador</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Monto mínimo</dt>
+    <dd class="col-sm-9">@Model.MontoMinimoCRC.ToString("C2")</dd>
+
+    <dt class="col-sm-3">Monto máximo</dt>
+    <dd class="col-sm-9">
+        @(Model.EsRangoAbierto ? "Sin límite" : Model.MontoMaximoCRC!.Value.ToString("C2"))
+    </dd>
+</dl>
+
+<a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
+<a class="btn btn-link" asp-action="Index">Volver</a>
