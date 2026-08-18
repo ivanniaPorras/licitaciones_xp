@@ -1,3 +1,4 @@
+using Licitaciones.Application.Licitaciones;
 using Licitaciones.Application.Proveedores;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +14,7 @@ public static class RegistroServicios
     public static IServiceCollection AgregarAplicacion(this IServiceCollection servicios)
     {
         servicios.AddScoped<IProveedorService, ProveedorService>();
+        servicios.AddScoped<ILicitacionService, LicitacionService>();
 
         return servicios;
     }
