@@ -44,9 +44,9 @@ Definida por el cliente:
 | HU-012 | Protección ante ediciones simultáneas | Media | 3 | 2 | Terminada |
 | HU-013 | Administrar proveedores | Alta | 5 | 2 | Terminada |
 | HU-014 | Consultar las ofertas de un proveedor | Media | 2 | 2 | Terminada |
-| HU-015 | Administrar licitaciones | Alta | 5 | 2 | Pendiente |
-| HU-016 | Cambiar el estado de una licitación | Alta | 3 | 2 | Pendiente |
-| HU-017 | No reducir el presupuesto bajo una oferta existente | Alta | 3 | 2 | Pendiente |
+| HU-015 | Administrar licitaciones | Alta | 5 | 2 | Terminada |
+| HU-016 | Cambiar el estado de una licitación | Alta | 3 | 2 | Terminada |
+| HU-017 | No reducir el presupuesto bajo una oferta existente | Alta | 3 | 2 | Terminada |
 | HU-018 | Registrar una oferta válida | Alta | 5 | 3 | Pendiente |
 | HU-019 | Rechazar una oferta superior al presupuesto | Alta | 2 | 3 | Pendiente |
 | HU-020 | Impedir una segunda oferta del mismo proveedor | Alta | 3 | 3 | Pendiente |
@@ -451,8 +451,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 7. Las mismas operaciones están disponibles por la API.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `LicitacionServiceTests` (17 casos), `LicitacionesEndpointsTests` (9 casos)
+- Commits: `72f5790` (rojo), `f4be3f1` (verde), `fa8feb6` (interfaz), `50745ed` (API)
 - Documentación: [modulos/licitaciones.md](modulos/licitaciones.md)
 
 ---
@@ -475,8 +475,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 4. El cambio de estado pide confirmación antes de ejecutarse.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `LicitacionServiceTests.CambiarEstado_*`, `LicitacionesEndpointsTests.CambiarEstado_*`
+- Commits: `72f5790` (rojo), `f4be3f1` (verde), `fa8feb6` (interfaz)
 - Documentación: [modulos/licitaciones.md](modulos/licitaciones.md)
 
 ---
@@ -498,8 +498,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 4. La restricción no aplica si la licitación no tiene ofertas.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `LicitacionServiceTests.Actualizar_ReduciendoElPresupuestoPorDebajoDeUnaOferta_EsRechazado`
+- Commits: `72f5790` (rojo), `f4be3f1` (verde)
 - Documentación: [modulos/licitaciones.md](modulos/licitaciones.md)
 
 ---
