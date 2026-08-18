@@ -1,0 +1,91 @@
+@using Licitaciones.Application.Comun
+@using Licitaciones.Application.Ofertas
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model PagedResponse<OfertaResponse>
+@{
+    ViewData["Title"] = "Ofertas";
+    var licitaciones = (List<SelectListItem>)ViewData["Licitaciones"]!;
+    var proveedores = (List<SelectListItem>)ViewData["Proveedores"]!;
+    var licitacionActual = Context.Request.Query["licitacionId"].ToString();
+    var proveedorActual = Context.Request.Query["proveedorId"].ToString();
+}
+
+<h1>Ofertas</h1>
+<partial name="_Mensajes" />
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="visually-hidden" for="licitacionId">Licitación</label>
+        <select class="form-select" id="licitacionId" name="licitacionId">
+            <option value="">Todas las licitaciones</option>
+            @foreach (var opcion in licitaciones)
+            {
+                <option value="@opcion.Value" selected="@(licitacionActual == opcion.Value)">@opcion.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <label class="visually-hidden" for="proveedorId">Proveedor</label>
+        <select class="form-select" id="proveedorId" name="proveedorId">
+            <option value="">Todos los proveedores</option>
+            @foreach (var opcion in proveedores)
+            {
+                <option value="@opcion.Value" selected="@(proveedorActual == opcion.Value)">@opcion.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Filtrar</button>
+    </div>
+    <div class="col-auto ms-auto">
+        <a class="btn btn-primary" asp-action="Create">Registrar oferta</a>
+    </div>
+</form>
+
+@if (Model is null || Model.Elementos.Count == 0)
+{
+    <p class="text-muted">No hay ofertas registradas con esos filtros.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <caption>@Model.Total ofertas</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Licitación</th>
+                    <th scope="col">Proveedor</th>
+                    <th scope="col">
+                        <a asp-action="Index" asp-route-orden="monto:asc"
+                           asp-route-licitacionId="@licitacionActual"
+                           asp-route-proveedorId="@proveedorActual">Monto</a>
+                    </th>
+                    <th scope="col">
+                        <a asp-action="Index" asp-route-orden="fecha:asc"
+                           asp-route-licitacionId="@licitacionActual"
+                           asp-route-proveedorId="@proveedorActual">Registro</a>
+                    </th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var oferta in Model.Elementos)
+            {
+                <tr>
+                    <td>@oferta.CodigoLicitacion</td>
+                    <td>@oferta.NombreProveedor</td>
+                    <td data-crc="@oferta.MontoOfertadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        @oferta.MontoOfertadoCRC.ToString("C2")
+                    </td>
+                    <td>@oferta.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@oferta.Id">Ver</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Paginacion" model="@((Model.Pagina, Model.TotalPaginas, "Index"))" />
+}

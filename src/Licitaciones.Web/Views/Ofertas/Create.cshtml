@@ -1,0 +1,62 @@
+@using Licitaciones.Application.Ofertas
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model CrearOfertaRequest
+@{
+    ViewData["Title"] = "Registrar oferta";
+    var licitaciones = (List<SelectListItem>)ViewData["Licitaciones"]!;
+    var proveedores = (List<SelectListItem>)ViewData["Proveedores"]!;
+}
+
+<h1>Registrar oferta</h1>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form method="post" class="col-md-8">
+    <div class="mb-3">
+        <label class="form-label" for="LicitacionId">Licitación</label>
+        <select class="form-select" id="LicitacionId" name="LicitacionId" required
+                aria-describedby="ayudaLicitacion">
+            <option value="">Seleccione una licitación</option>
+            @foreach (var opcion in licitaciones)
+            {
+                <option value="@opcion.Value" selected="@(Model.LicitacionId.ToString() == opcion.Value)">@opcion.Text</option>
+            }
+        </select>
+        <div id="ayudaLicitacion" class="form-text">
+            Solo se admiten ofertas sobre licitaciones publicadas y cuyo plazo no haya vencido.
+        </div>
+        <span asp-validation-for="LicitacionId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="ProveedorId">Proveedor</label>
+        <select class="form-select" id="ProveedorId" name="ProveedorId" required
+                aria-describedby="ayudaProveedor">
+            <option value="">Seleccione un proveedor</option>
+            @foreach (var opcion in proveedores)
+            {
+                <option value="@opcion.Value" selected="@(Model.ProveedorId.ToString() == opcion.Value)">@opcion.Text</option>
+            }
+        </select>
+        <div id="ayudaProveedor" class="form-text">
+            Cada proveedor puede presentar una sola oferta por licitación.
+        </div>
+        <span asp-validation-for="ProveedorId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="MontoOfertadoCRC">Monto ofertado (CRC)</label>
+        <input class="form-control" id="MontoOfertadoCRC" name="MontoOfertadoCRC"
+               type="number" step="0.01" min="0.01" inputmode="decimal" required
+               value="@Model.MontoOfertadoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+               aria-describedby="ayudaMonto" />
+        <div id="ayudaMonto" class="form-text">
+            No puede superar el presupuesto de la licitación. Un monto igual al presupuesto es válido.
+        </div>
+        <span asp-validation-for="MontoOfertadoCRC" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
