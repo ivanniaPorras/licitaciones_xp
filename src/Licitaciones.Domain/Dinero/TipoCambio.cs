@@ -59,8 +59,17 @@ public sealed class TipoCambio : IAuditable
             throw new MontoInvalidoException("El tipo de cambio no puede tener más de cuatro decimales.");
         }
 
-        return new TipoCambio(crcPorUsd, fechaVigencia);
+        return new TipoCambio(crcPorUsd, ADiaDeVigencia(fechaVigencia));
     }
+
+    /// <summary>
+    /// Conserva el día escrito y lo guarda a medianoche en tiempo universal. La vigencia
+    /// es una fecha de calendario y no un instante: se toma el día tal como lo vio quien
+    /// la escribió y se ancla en cero, de modo que el 1 de enero registrado desde Costa
+    /// Rica y el registrado desde Europa queden guardados igual y se lean igual.
+    /// </summary>
+    private static DateTimeOffset ADiaDeVigencia(DateTimeOffset fechaVigencia) =>
+        new(fechaVigencia.Date, TimeSpan.Zero);
 
     /// <summary>Cambia la tasa y la fecha desde la que rige, sin alterar quién está activo.</summary>
     /// <param name="crcPorUsd">Nueva cantidad de colones equivalente a un dólar.</param>

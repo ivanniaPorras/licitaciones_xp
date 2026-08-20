@@ -47,6 +47,22 @@ public sealed class TipoCambioTests
     }
 
     [Fact]
+    public void Crear_LlevaLaVigenciaAlInicioDeSuDiaEnTiempoUniversal()
+    {
+        // La misma fecha escrita desde Costa Rica y desde Europa debe guardarse igual.
+        var desdeCostaRica = TipoCambio.Crear(
+            512.00m,
+            new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(-6)));
+        var desdeEuropa = TipoCambio.Crear(
+            512.00m,
+            new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(2)));
+
+        var esperada = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        Assert.Equal(esperada, desdeCostaRica.FechaVigencia);
+        Assert.Equal(esperada, desdeEuropa.FechaVigencia);
+    }
+
+    [Fact]
     public void CambiarTasa_ActualizaLaTasaYSuFechaSinTocarElUso()
     {
         var tipoCambio = TipoCambio.Crear(512.00m, Vigencia);

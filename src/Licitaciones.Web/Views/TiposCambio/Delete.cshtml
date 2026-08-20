@@ -8,7 +8,7 @@
 
 <div class="alert alert-warning" role="alert">
     ¿Confirma eliminar la tasa de <strong>@Model.CRCporUSD.ToString("N4")</strong> colones
-    por dólar, vigente desde @Model.FechaVigencia.ToLocalTime().ToString("dd/MM/yyyy")?
+    por dólar, vigente desde @Model.FechaVigencia.UtcDateTime.ToString("dd/MM/yyyy")?
     @if (Model.Activo)
     {
         <text>

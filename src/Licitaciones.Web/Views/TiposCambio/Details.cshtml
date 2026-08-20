@@ -1,7 +1,7 @@
 @using Licitaciones.Application.Moneda
 @model TipoCambioResponse
 @{
-    ViewData["Title"] = $"Tipo de cambio del {Model.FechaVigencia.ToLocalTime():dd/MM/yyyy}";
+    ViewData["Title"] = $"Tipo de cambio del {Model.FechaVigencia.UtcDateTime:dd/MM/yyyy}";
 }
 
 <h1>Tipo de cambio</h1>
@@ -11,7 +11,7 @@
     <dd class="col-sm-9">@Model.CRCporUSD.ToString("N4")</dd>
 
     <dt class="col-sm-3">Vigente desde</dt>
-    <dd class="col-sm-9">@Model.FechaVigencia.ToLocalTime().ToString("dd/MM/yyyy")</dd>
+    <dd class="col-sm-9">@Model.FechaVigencia.UtcDateTime.ToString("dd/MM/yyyy")</dd>
 
     <dt class="col-sm-3">Estado</dt>
     <dd class="col-sm-9">

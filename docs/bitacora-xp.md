@@ -144,7 +144,7 @@ repetido lo mismo cinco veces.
 |---|---|
 | `dotnet build -c Release` | 0 errores, 0 advertencias |
 | `dotnet format --verify-no-changes --severity warn` | sin diferencias |
-| `dotnet test` unitarias | 232 superadas |
+| `dotnet test` unitarias | 233 superadas |
 | `dotnet test` integración | 86 superadas |
 
 Con esta entrega la iteración 3 queda completa: las diez historias comprometidas están
@@ -230,6 +230,15 @@ terminadas.
   y además intentaba evaluar `Monto.Valor` sobre un objeto de valor con conversor. Se
   reescribió para filtrar y ordenar sobre las entidades y combinar después
   (`30b13d7`). Sin las pruebas de endpoint el fallo habría llegado a la interfaz.
+
+- **Entrega 9** — Al revisar la aplicación en el navegador, la tasa sembrada con vigencia
+  del 1 de enero de 2026 aparecía como *31/12/2025*. Las vistas convertían la fecha a hora
+  local, y una vigencia guardada a medianoche universal cae en el día anterior desde Costa
+  Rica. La vigencia no es un instante sino una fecha de calendario, así que la corrección
+  no fue en la vista sino en el dominio: `TipoCambio.Crear` conserva el día escrito y lo
+  ancla a medianoche en tiempo universal, y las pantallas lo muestran sin convertir. La
+  prueba `Crear_LlevaLaVigenciaAlInicioDeSuDiaEnTiempoUniversal` fija el caso comparando la
+  misma fecha escrita desde dos husos distintos.
 
 ### Salvedad sobre el ciclo en la entrega 4
 

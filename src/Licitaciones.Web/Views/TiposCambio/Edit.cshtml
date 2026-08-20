@@ -20,7 +20,7 @@
     <div class="mb-3">
         <label class="form-label" for="FechaVigencia">Fecha de vigencia</label>
         <input class="form-control" id="FechaVigencia" name="FechaVigencia" type="date" required
-               value="@Model.FechaVigencia.ToLocalTime().ToString("yyyy-MM-dd")" />
+               value="@Model.FechaVigencia.UtcDateTime.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="FechaVigencia" class="text-danger"></span>
     </div>
 

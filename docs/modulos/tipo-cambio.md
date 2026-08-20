@@ -48,6 +48,7 @@ funcionando en colones.
 | R19 | Solo un tipo de cambio activo a la vez | `TipoCambioService.ActivarAsync` en transacción, más el índice único parcial `ix_tipos_cambio_unico_activo` |
 | R18 | Dólares = colones dividido entre la tasa activa | `ConversionMonedaService.ConvertirAsync` |
 | — | La tasa usada y su fecha se muestran junto al monto convertido | `ConversionResponse` y el alternador de la barra de navegación |
+| — | La vigencia es una fecha de calendario, anclada a medianoche universal | `TipoCambio.Crear` |
 
 ### Los colones son la única fuente de verdad
 
@@ -84,6 +85,16 @@ nueva. El índice único parcial de PostgreSQL se comprueba en cada instrucción
 cerrar la transacción, así que las dos marcas no pueden coexistir ni por un instante.
 La base garantiza la regla por sí sola aunque una condición de carrera burlara la
 comprobación del servidor.
+
+### La vigencia es una fecha, no un instante
+
+Quien administra la tasa escribe un día en el formulario, no una hora. `TipoCambio.Crear`
+conserva ese día y lo ancla a medianoche en tiempo universal, y las pantallas lo muestran
+sin convertirlo a hora local. Sin esa normalización, una vigencia del 1 de enero guardada
+a medianoche universal se leería como 31 de diciembre desde Costa Rica.
+
+Es la única fecha del sistema que se trata así. `FechaCierre` y `FechaRegistro` sí son
+instantes y se siguen mostrando en hora local.
 
 ### Sin dependencias de red
 

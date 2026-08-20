@@ -6,7 +6,7 @@
 {
     <div class="d-flex align-items-center gap-2" id="alternador-moneda"
          data-tasa="@Model.CRCporUSD.ToString(CultureInfo.InvariantCulture)"
-         data-vigencia="@Model.FechaVigencia.ToLocalTime().ToString("dd/MM/yyyy")">
+         data-vigencia="@Model.FechaVigencia.UtcDateTime.ToString("dd/MM/yyyy")">
         <div class="btn-group btn-group-sm" role="group" aria-label="Moneda en la que se muestran los montos">
             <button type="button" class="btn btn-outline-secondary active" data-moneda="CRC"
                     aria-pressed="true">₡ Colones</button>
