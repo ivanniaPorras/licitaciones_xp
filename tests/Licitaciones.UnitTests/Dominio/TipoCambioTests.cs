@@ -47,6 +47,29 @@ public sealed class TipoCambioTests
     }
 
     [Fact]
+    public void CambiarTasa_ActualizaLaTasaYSuFechaSinTocarElUso()
+    {
+        var tipoCambio = TipoCambio.Crear(512.00m, Vigencia);
+        tipoCambio.Activar();
+        var nuevaVigencia = Vigencia.AddMonths(1);
+
+        tipoCambio.CambiarTasa(530.2500m, nuevaVigencia);
+
+        Assert.Equal(530.2500m, tipoCambio.CRCporUSD);
+        Assert.Equal(nuevaVigencia, tipoCambio.FechaVigencia);
+        Assert.True(tipoCambio.Activo);
+    }
+
+    [Fact]
+    public void CambiarTasa_ConTasaNoPositiva_DejaElRegistroIntacto()
+    {
+        var tipoCambio = TipoCambio.Crear(512.00m, Vigencia);
+
+        Assert.Throws<MontoInvalidoException>(() => tipoCambio.CambiarTasa(0m, Vigencia));
+        Assert.Equal(512.00m, tipoCambio.CRCporUSD);
+    }
+
+    [Fact]
     public void Activar_MarcaElRegistroComoActivo()
     {
         var tipoCambio = TipoCambio.Crear(512.00m, Vigencia);
