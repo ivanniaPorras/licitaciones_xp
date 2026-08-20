@@ -1,0 +1,67 @@
+@using Licitaciones.Application.Moneda
+@model IReadOnlyList<TipoCambioResponse>
+@{
+    ViewData["Title"] = "Tipo de cambio";
+}
+
+<h1>Tipo de cambio</h1>
+<partial name="_Mensajes" />
+
+<p class="text-muted">
+    Los montos se guardan siempre en colones. La tasa vigente solo sirve para leerlos
+    también en dólares y nunca modifica lo almacenado. El sistema no consulta ningún
+    servicio externo de tasas.
+</p>
+
+<p><a class="btn btn-primary" asp-action="Create">Agregar tipo de cambio</a></p>
+
+@if (Model is null || Model.Count == 0)
+{
+    <p class="text-muted">No hay tipos de cambio registrados.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Colones por dólar</th>
+                    <th scope="col">Vigente desde</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var tipoCambio in Model)
+            {
+                <tr>
+                    <td>@tipoCambio.CRCporUSD.ToString("N4")</td>
+                    <td>@tipoCambio.FechaVigencia.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (tipoCambio.Activo)
+                        {
+                            <span class="badge bg-success">En uso</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Fuera de uso</span>
+                        }
+                    </td>
+                    <td>
+                        @if (!tipoCambio.Activo)
+                        {
+                            <form method="post" asp-action="Activar" asp-route-id="@tipoCambio.Id" class="d-inline"
+                                  onsubmit="return confirm('¿Confirma poner esta tasa en uso? La que está vigente dejará de usarse.');">
+                                <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                            </form>
+                        }
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@tipoCambio.Id">Ver</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@tipoCambio.Id">Editar</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@tipoCambio.Id">Eliminar</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
