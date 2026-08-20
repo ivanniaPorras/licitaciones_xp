@@ -66,4 +66,13 @@ public static class CodigosError
 
     /// <summary>Ningún nivel de aprobación cubre el monto consultado.</summary>
     public const string SinNivelAplicable = "SIN_NIVEL_APLICABLE";
+
+    /// <summary>La tasa de cambio no cumple las reglas del sistema.</summary>
+    public const string TasaInvalida = "TASA_INVALIDA";
+
+    /// <summary>No hay ninguna tasa activa con la que convertir.</summary>
+    public const string SinTipoCambioActivo = "SIN_TIPO_CAMBIO_ACTIVO";
+
+    /// <summary>El tipo de cambio solicitado no existe.</summary>
+    public const string TipoCambioNoEncontrado = "TIPO_CAMBIO_NO_ENCONTRADO";
 }
