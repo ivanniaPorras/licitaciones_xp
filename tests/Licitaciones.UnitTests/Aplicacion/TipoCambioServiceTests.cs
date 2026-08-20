@@ -139,7 +139,7 @@ public sealed class TipoCambioServiceTests
         await servicio.ActivarAsync(segundo.Id);
         await servicio.ActivarAsync(tercero.Id);
 
-        Assert.Single(_tiposCambio.Contenido.Where(t => t.Activo));
+        Assert.Single(_tiposCambio.Contenido, t => t.Activo);
         Assert.True(tercero.Activo);
     }
 
@@ -152,7 +152,7 @@ public sealed class TipoCambioServiceTests
 
         Assert.True(resultado.EsCorrecto);
         Assert.True(vigente.Activo);
-        Assert.Single(_tiposCambio.Contenido.Where(t => t.Activo));
+        Assert.Single(_tiposCambio.Contenido, t => t.Activo);
     }
 
     [Fact]

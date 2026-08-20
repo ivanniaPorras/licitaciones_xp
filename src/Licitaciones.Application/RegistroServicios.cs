@@ -1,5 +1,6 @@
 using Licitaciones.Application.Aprobacion;
 using Licitaciones.Application.Licitaciones;
+using Licitaciones.Application.Moneda;
 using Licitaciones.Application.Ofertas;
 using Licitaciones.Application.Proveedores;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,8 @@ public static class RegistroServicios
         servicios.AddScoped<ILicitacionService, LicitacionService>();
         servicios.AddScoped<IOfertaService, OfertaService>();
         servicios.AddScoped<INivelAprobacionService, NivelAprobacionService>();
+        servicios.AddScoped<ITipoCambioService, TipoCambioService>();
+        servicios.AddScoped<IConversionMonedaService, ConversionMonedaService>();
 
         return servicios;
     }
