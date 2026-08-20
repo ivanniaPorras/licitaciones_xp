@@ -55,8 +55,8 @@ Definida por el cliente:
 | HU-023 | Consultar la mejor oferta con su clasificación | Alta | 3 | 3 | Terminada |
 | HU-024 | Administrar niveles de aprobación sin traslape | Alta | 5 | 3 | Terminada |
 | HU-025 | Conocer quién debe aprobar un monto | Alta | 3 | 3 | Terminada |
-| HU-026 | Administrar el tipo de cambio vigente | Alta | 5 | 3 | Pendiente |
-| HU-027 | Ver los montos en dólares | Alta | 3 | 3 | Pendiente |
+| HU-026 | Administrar el tipo de cambio vigente | Alta | 5 | 3 | Terminada |
+| HU-027 | Ver los montos en dólares | Alta | 3 | 3 | Terminada |
 | HU-028 | Página inicial explicativa y navegación | Alta | 5 | 4 | Pendiente |
 | HU-029 | Modo claro y modo oscuro | Media | 3 | 4 | Pendiente |
 | HU-030 | Listados con paginación, filtrado y ordenamiento | Media | 5 | 4 | Pendiente |
@@ -722,8 +722,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    tasas.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `TipoCambioServiceTests` (17 casos), `TipoCambioTests` (10 casos), `TiposCambioEndpointsTests` (11 casos)
+- Commits: `c8bcadb` (rojo), `baeae97` (verde), `59293a7` (API), `82ae104` (interfaz)
 - Documentación: [modulos/tipo-cambio.md](modulos/tipo-cambio.md)
 
 ---
@@ -746,8 +746,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 4. Los colones se presentan con el formato de Costa Rica, por ejemplo `₡1.250.000,00`.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ConversionMonedaServiceTests` (9 casos), `TiposCambioEndpointsTests.Conversion_*`
+- Commits: `ac3d6ac` (rojo), `551b1ae` (verde), `59293a7` (API), `dd4b60b` (alternador)
 - Documentación: [modulos/tipo-cambio.md](modulos/tipo-cambio.md)
 
 ---

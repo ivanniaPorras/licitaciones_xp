@@ -127,6 +127,29 @@ OpenAPI y el middleware global de excepciones.
 | `dotnet test` unitarias | 204 superadas |
 | `dotnet test` integración | 75 superadas |
 
+**Entrega 9 — Tipo de cambio y montos en dólares (HU-026, HU-027, terminadas).**
+
+Se cerró la vertical del tipo de cambio sobre la infraestructura compartida que dejó la
+entrega 5. Quedaron implementados el servicio de aplicación con el recorrido completo de
+creación, consulta, edición y eliminación, la activación de la tasa vigente dentro de una
+transacción, el servicio de conversión con su redondeo alejándose de cero, los endpoints
+bajo `api/v1/tipos-cambio` y las pantallas MVC.
+
+La lectura en dólares se resolvió con un alternador en la barra de navegación, apoyado en
+los marcadores `data-crc` que ya traían las diez vistas de los otros módulos. La tasa se
+publica con un componente de vista y no cargándola en cada controlador, que habría
+repetido lo mismo cinco veces.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 232 superadas |
+| `dotnet test` integración | 86 superadas |
+
+Con esta entrega la iteración 3 queda completa: las diez historias comprometidas están
+terminadas.
+
 ### Decisiones tomadas
 
 | Decisión | Razón |
@@ -135,6 +158,9 @@ OpenAPI y el middleware global de excepciones.
 | Los finales de línea se normalizan a LF en todo el repositorio. | La integración continua verifica el formato sobre Linux; con finales de línea distintos, el mismo archivo pasaría en una máquina y fallaría en la otra. |
 | La entrega 1 se integra desde la rama `estructura-inicial`. | No corresponde a una historia funcional, sino a la preparación del repositorio. A partir de la entrega 3 las ramas se nombran por historia. |
 | No se implementa la reapertura de una licitación cerrada. | El enunciado la admite solo con una regla aprobada previamente por la persona docente. Se documenta en el módulo de licitaciones. |
+| Un tipo de cambio recién registrado queda fuera de uso hasta que alguien lo active. | Si al guardarlo quedara vigente de inmediato, registrar una tasa cambiaría sin querer todos los montos que ya se están mostrando. |
+| Al activar una tasa, la anterior se retira y se confirma antes de marcar la nueva. | El índice único parcial de PostgreSQL se comprueba en cada instrucción y no al cerrar la transacción, así que las dos marcas no pueden coexistir ni por un instante. |
+| Eliminar la tasa vigente está permitido y no se bloquea. | El cliente pidió poder eliminar tipos de cambio sin excepciones. Quedarse sin tasa activa no rompe nada: las pantallas siguen en colones y la conversión responde con un mensaje controlado. |
 
 ### Velocidad
 
@@ -163,6 +189,8 @@ OpenAPI y el middleware global de excepciones.
 | HU-015 a HU-017 | `72f5790` | `f4be3f1` | — |
 | HU-018 a HU-022 | `f9c9efe` | `bd80333` | `30b13d7` |
 | HU-024, HU-025 | `fe9d765` | `e5c4ad8` | — |
+| HU-026 | `c8bcadb` | `baeae97` | — |
+| HU-027 | `ac3d6ac` | `551b1ae` | — |
 
 > HU-001 es una historia de preparación del repositorio: la prueba de arquitectura y la
 > estructura que verifica se crearon en el mismo commit porque la prueba no puede existir
