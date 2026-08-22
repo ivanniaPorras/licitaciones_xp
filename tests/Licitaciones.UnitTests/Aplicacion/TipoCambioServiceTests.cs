@@ -177,11 +177,76 @@ public sealed class TipoCambioServiceTests
         SembrarActivo();
         _tiposCambio.Sembrar(TipoCambio.Crear(530.0000m, Vigencia.AddMonths(1)));
 
-        var resultado = await CrearServicio().ListarAsync();
+        var resultado = await CrearServicio().ListarAsync(new ConsultaTiposCambio());
 
         Assert.True(resultado.EsCorrecto);
-        Assert.Equal(530.0000m, resultado.Valor![0].CRCporUSD);
-        Assert.Equal(512.0000m, resultado.Valor[1].CRCporUSD);
+        Assert.Equal(530.0000m, resultado.Valor!.Elementos[0].CRCporUSD);
+        Assert.Equal(512.0000m, resultado.Valor.Elementos[1].CRCporUSD);
+    }
+
+    [Fact]
+    public async Task Listar_InformaElTotalAunqueLaPaginaTraigaMenos()
+    {
+        SembrarActivo();
+        _tiposCambio.Sembrar(
+            TipoCambio.Crear(530.0000m, Vigencia.AddMonths(1)),
+            TipoCambio.Crear(540.0000m, Vigencia.AddMonths(2)));
+
+        var resultado = await CrearServicio().ListarAsync(new ConsultaTiposCambio { Tamano = 2 });
+
+        Assert.Equal(2, resultado.Valor!.Elementos.Count);
+        Assert.Equal(3, resultado.Valor.Total);
+        Assert.Equal(2, resultado.Valor.TotalPaginas);
+    }
+
+    [Fact]
+    public async Task Listar_ConBusqueda_FiltraPorAnioDeVigencia()
+    {
+        SembrarActivo();
+        _tiposCambio.Sembrar(TipoCambio.Crear(530.0000m, Vigencia.AddYears(1)));
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaTiposCambio { Busqueda = "2027" });
+
+        Assert.Single(resultado.Valor!.Elementos);
+        Assert.Equal(530.0000m, resultado.Valor.Elementos[0].CRCporUSD);
+    }
+
+    [Fact]
+    public async Task Listar_ConBusquedaQueNoEsUnAnio_DevuelveLaPaginaVacia()
+    {
+        SembrarActivo();
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaTiposCambio { Busqueda = "vigente" });
+
+        Assert.Empty(resultado.Valor!.Elementos);
+        Assert.Equal(0, resultado.Valor.Total);
+    }
+
+    [Fact]
+    public async Task Listar_OrdenandoPorTasa_UsaElValorDeLaTasa()
+    {
+        SembrarActivo();
+        _tiposCambio.Sembrar(TipoCambio.Crear(490.0000m, Vigencia.AddMonths(1)));
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaTiposCambio { Orden = "tasa:asc" });
+
+        Assert.Equal(490.0000m, resultado.Valor!.Elementos[0].CRCporUSD);
+        Assert.Equal(512.0000m, resultado.Valor.Elementos[1].CRCporUSD);
+    }
+
+    [Fact]
+    public async Task Listar_ConVigenciaAscendente_EmpiezaPorLaMasAntigua()
+    {
+        SembrarActivo();
+        _tiposCambio.Sembrar(TipoCambio.Crear(530.0000m, Vigencia.AddMonths(1)));
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaTiposCambio { Orden = "vigencia:asc" });
+
+        Assert.Equal(512.0000m, resultado.Valor!.Elementos[0].CRCporUSD);
     }
 
     [Fact]

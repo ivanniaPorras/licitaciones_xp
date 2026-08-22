@@ -218,15 +218,91 @@ public sealed class NivelAprobacionServiceTests
         Assert.Equal(2, _niveles.Contenido.Count);
     }
 
+    // ---- HU-030 · Paginación, búsqueda y ordenamiento ----
+
     [Fact]
     public async Task Listar_DevuelveLosNivelesOrdenadosPorMontoMinimo()
     {
         SembrarSemilla();
 
-        var resultado = await CrearServicio().ListarAsync();
+        var resultado = await CrearServicio().ListarAsync(new ConsultaNivelesAprobacion());
 
-        Assert.Equal(3, resultado.Valor!.Count);
-        Assert.Equal("Encargado de área", resultado.Valor[0].Aprobador);
-        Assert.Equal("Junta Directiva", resultado.Valor[2].Aprobador);
+        Assert.Equal(3, resultado.Valor!.Elementos.Count);
+        Assert.Equal("Encargado de área", resultado.Valor.Elementos[0].Aprobador);
+        Assert.Equal("Junta Directiva", resultado.Valor.Elementos[2].Aprobador);
+    }
+
+    [Fact]
+    public async Task Listar_InformaElTotalAunqueLaPaginaTraigaMenos()
+    {
+        SembrarSemilla();
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaNivelesAprobacion { Tamano = 2 });
+
+        Assert.Equal(2, resultado.Valor!.Elementos.Count);
+        Assert.Equal(3, resultado.Valor.Total);
+        Assert.Equal(2, resultado.Valor.TotalPaginas);
+    }
+
+    [Fact]
+    public async Task Listar_LaSegundaPaginaTraeElResto()
+    {
+        SembrarSemilla();
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaNivelesAprobacion { Pagina = 2, Tamano = 2 });
+
+        Assert.Single(resultado.Valor!.Elementos);
+        Assert.Equal("Junta Directiva", resultado.Valor.Elementos[0].Aprobador);
+    }
+
+    [Fact]
+    public async Task Listar_ConBusqueda_FiltraPorAprobador()
+    {
+        SembrarSemilla();
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaNivelesAprobacion { Busqueda = "gerencia" });
+
+        Assert.Single(resultado.Valor!.Elementos);
+        Assert.Equal("Gerencia", resultado.Valor.Elementos[0].Aprobador);
+    }
+
+    [Fact]
+    public async Task Listar_ConBusquedaSinCoincidencias_DevuelveLaPaginaVacia()
+    {
+        SembrarSemilla();
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaNivelesAprobacion { Busqueda = "nadie" });
+
+        Assert.Empty(resultado.Valor!.Elementos);
+        Assert.Equal(0, resultado.Valor.Total);
+    }
+
+    [Fact]
+    public async Task Listar_ConOrdenDescendente_InvierteElListado()
+    {
+        SembrarSemilla();
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaNivelesAprobacion { Orden = "montoMinimo:desc" });
+
+        Assert.Equal("Junta Directiva", resultado.Valor!.Elementos[0].Aprobador);
+        Assert.Equal("Encargado de área", resultado.Valor.Elementos[2].Aprobador);
+    }
+
+    [Fact]
+    public async Task Listar_OrdenandoPorAprobador_UsaElOrdenAlfabetico()
+    {
+        SembrarSemilla();
+
+        var resultado = await CrearServicio().ListarAsync(
+            new ConsultaNivelesAprobacion { Orden = "aprobador:asc" });
+
+        Assert.Equal("Encargado de área", resultado.Valor!.Elementos[0].Aprobador);
+        Assert.Equal("Gerencia", resultado.Valor.Elementos[1].Aprobador);
+        Assert.Equal("Junta Directiva", resultado.Valor.Elementos[2].Aprobador);
     }
 }
