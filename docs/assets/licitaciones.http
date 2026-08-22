@@ -1,0 +1,281 @@
+### Colección reproducible de solicitudes
+###
+### Recorre el flujo completo del sistema de principio a fin. Se ejecuta con la extensión
+### REST Client de Visual Studio Code o con la ventana de peticiones de Visual Studio, y
+### cada bloque se lanza con el enlace "Send Request" que aparece sobre el separador.
+###
+### Requisito previo: la API en marcha contra una base con las migraciones aplicadas.
+### Los bloques van en orden y se encadenan por variables, así que hay que ejecutarlos de
+### arriba abajo la primera vez.
+
+@host = http://localhost:5171
+@version = v1
+@base = {{host}}/api/{{version}}
+
+### -------------------------------------------------------------------------------------
+### 1. Registrar un proveedor
+### Responde 201 con la ubicación del recurso creado.
+# @name crearProveedor
+POST {{base}}/proveedores
+Content-Type: application/json
+
+{
+  "nombre": "Constructora Central S.A."
+}
+
+### El identificador del proveedor recién creado alimenta los bloques siguientes.
+@proveedorId = {{crearProveedor.response.body.id}}
+
+### -------------------------------------------------------------------------------------
+### 2. Rechazo por nombre equivalente
+### "constructora   central s.a." normaliza igual que el anterior, así que da 409.
+POST {{base}}/proveedores
+Content-Type: application/json
+
+{
+  "nombre": "constructora   central s.a."
+}
+
+### -------------------------------------------------------------------------------------
+### 3. Rechazo por caracteres no admitidos
+### Responde 422 con el código NOMBRE_PROVEEDOR_INVALIDO.
+POST {{base}}/proveedores
+Content-Type: application/json
+
+{
+  "nombre": "Empresa@Central"
+}
+
+### -------------------------------------------------------------------------------------
+### 4. Crear una licitación
+### El identificador lo genera el sistema y no viaja en la petición.
+# @name crearLicitacion
+POST {{base}}/licitaciones
+Content-Type: application/json
+
+{
+  "codigo": "LIC-2026-001",
+  "titulo": "Compra de equipo de cómputo",
+  "presupuestoEstimadoCRC": 10000000.00,
+  "fechaCierre": "2027-06-30T17:00:00+00:00"
+}
+
+@licitacionId = {{crearLicitacion.response.body.id}}
+
+### -------------------------------------------------------------------------------------
+### 5. Rechazo por código repetido
+### LIC-2026-001 y lic-2026-001 son el mismo código, así que responde 409.
+POST {{base}}/licitaciones
+Content-Type: application/json
+
+{
+  "codigo": "lic-2026-001",
+  "titulo": "Otro proceso",
+  "presupuestoEstimadoCRC": 500000.00,
+  "fechaCierre": "2027-06-30T17:00:00+00:00"
+}
+
+### -------------------------------------------------------------------------------------
+### 6. Oferta antes de publicar
+### La licitación sigue en Borrador, así que responde 422 con LICITACION_NO_PUBLICADA.
+POST {{base}}/ofertas
+Content-Type: application/json
+
+{
+  "licitacionId": "{{licitacionId}}",
+  "proveedorId": "{{proveedorId}}",
+  "montoOfertadoCRC": 8000000.00
+}
+
+### -------------------------------------------------------------------------------------
+### 7. Publicar la licitación
+### Responde 200 con el estado ya en Publicada.
+PATCH {{base}}/licitaciones/{{licitacionId}}/estado
+Content-Type: application/json
+
+{
+  "estado": "Publicada"
+}
+
+### -------------------------------------------------------------------------------------
+### 8. Registrar una oferta válida
+### Responde 201. Un ahorro del 20 % la deja como "Oferta conveniente".
+# @name crearOferta
+POST {{base}}/ofertas
+Content-Type: application/json
+
+{
+  "licitacionId": "{{licitacionId}}",
+  "proveedorId": "{{proveedorId}}",
+  "montoOfertadoCRC": 8000000.00
+}
+
+@ofertaId = {{crearOferta.response.body.id}}
+
+### -------------------------------------------------------------------------------------
+### 9. Segunda oferta del mismo proveedor
+### Responde 409 con el código OFERTA_DUPLICADA.
+POST {{base}}/ofertas
+Content-Type: application/json
+
+{
+  "licitacionId": "{{licitacionId}}",
+  "proveedorId": "{{proveedorId}}",
+  "montoOfertadoCRC": 7000000.00
+}
+
+### -------------------------------------------------------------------------------------
+### 10. Oferta que supera el presupuesto
+### Hace falta otro proveedor, porque el anterior ya ofertó.
+# @name crearSegundoProveedor
+POST {{base}}/proveedores
+Content-Type: application/json
+
+{
+  "nombre": "Suministros del Valle Ltda."
+}
+
+@segundoProveedorId = {{crearSegundoProveedor.response.body.id}}
+
+### Un céntimo por encima del presupuesto basta: responde 422 con OFERTA_SUPERA_PRESUPUESTO.
+POST {{base}}/ofertas
+Content-Type: application/json
+
+{
+  "licitacionId": "{{licitacionId}}",
+  "proveedorId": "{{segundoProveedorId}}",
+  "montoOfertadoCRC": 10000000.01
+}
+
+### -------------------------------------------------------------------------------------
+### 11. Consultar la mejor oferta con su clasificación y su aprobador
+### 8 000 000 sobre un presupuesto de 10 000 000 es un 20 % de ahorro, y el monto cae en el
+### rango de Gerencia.
+GET {{base}}/licitaciones/{{licitacionId}}/mejor-oferta
+
+### -------------------------------------------------------------------------------------
+### 12. No se puede bajar el presupuesto por debajo de una oferta recibida
+### Responde 422 con PRESUPUESTO_MENOR_QUE_OFERTA.
+PUT {{base}}/licitaciones/{{licitacionId}}
+Content-Type: application/json
+
+{
+  "codigo": "LIC-2026-001",
+  "titulo": "Compra de equipo de cómputo",
+  "presupuestoEstimadoCRC": 7999999.99,
+  "fechaCierre": "2027-06-30T17:00:00+00:00"
+}
+
+### -------------------------------------------------------------------------------------
+### 13. Niveles de aprobación
+### La semilla trae tres rangos sin traslape.
+GET {{base}}/niveles-aprobacion?orden=montoMinimo:asc
+
+### Quién aprueba un monto concreto. 1 000 000,00 ya corresponde a Gerencia.
+GET {{base}}/niveles-aprobacion/aprobador?monto=1000000.00
+
+### Un rango que se traslapa con otro existente responde 409 con RANGO_TRASLAPADO.
+POST {{base}}/niveles-aprobacion
+Content-Type: application/json
+
+{
+  "montoMinimoCRC": 500000.00,
+  "montoMaximoCRC": 2000000.00,
+  "aprobador": "Intruso"
+}
+
+### -------------------------------------------------------------------------------------
+### 14. Tipo de cambio
+### La tasa vigente que trae la semilla.
+GET {{base}}/tipos-cambio/vigente
+
+### Registrar una tasa nueva. Nace fuera de uso.
+# @name crearTipoCambio
+POST {{base}}/tipos-cambio
+Content-Type: application/json
+
+{
+  "crCporUSD": 530.5000,
+  "fechaVigencia": "2026-09-01T00:00:00+00:00"
+}
+
+@tipoCambioId = {{crearTipoCambio.response.body.id}}
+
+### Ponerla en uso. La que estaba vigente deja de estarlo en la misma transacción.
+POST {{base}}/tipos-cambio/{{tipoCambioId}}/activar
+
+### Leer un monto en dólares. Devuelve la tasa usada y su fecha de vigencia.
+GET {{base}}/tipos-cambio/conversion?monto=1250000.00
+
+### Una tasa que no es mayor que cero responde 422 con TASA_INVALIDA.
+POST {{base}}/tipos-cambio
+Content-Type: application/json
+
+{
+  "crCporUSD": 0,
+  "fechaVigencia": "2026-09-01T00:00:00+00:00"
+}
+
+### -------------------------------------------------------------------------------------
+### 15. Listados con paginación, filtrado y ordenamiento
+### Todos responden con elementos, pagina, tamano, total y totalPaginas.
+GET {{base}}/proveedores?pagina=1&tamano=5&orden=nombre:asc&busqueda=constructora
+
+###
+GET {{base}}/licitaciones?estado=Publicada&orden=fechaCierre:asc
+
+###
+GET {{base}}/ofertas?licitacionId={{licitacionId}}&orden=monto:asc
+
+###
+GET {{base}}/tipos-cambio?busqueda=2026&orden=vigencia:desc
+
+### El tamaño se acota al máximo admitido en lugar de devolver la tabla entera.
+GET {{base}}/proveedores?tamano=5000
+
+### -------------------------------------------------------------------------------------
+### 16. Errores comprensibles y seguros
+### Cada uno responde con título, estado, descripción segura, code y correlationId.
+
+### 404 por recurso inexistente.
+GET {{base}}/proveedores/00000000-0000-0000-0000-000000000000
+
+### 404 por ruta que no existe.
+GET {{base}}/inventado
+
+### 405 por verbo no admitido en esa ruta.
+PUT {{base}}/proveedores
+Content-Type: application/json
+
+{}
+
+### 400 por un cuerpo que no se puede interpretar.
+POST {{base}}/tipos-cambio
+Content-Type: application/json
+
+{
+  "crCporUSD": "esto no es un numero"
+}
+
+### -------------------------------------------------------------------------------------
+### 17. Limpieza
+### Antes de borrar la tasa que se activó en el paso 14 se devuelve el uso a la que trae la
+### semilla, cuyo identificador es una constante del sembrador. Si no, el sistema quedaría
+### sin tasa vigente y la conversión respondería SIN_TIPO_CAMBIO_ACTIVO.
+POST {{base}}/tipos-cambio/7a3c2d5b-0000-4000-8000-000000000001/activar
+
+### Las eliminaciones responden 204. El borrado de proveedores y licitaciones es lógico, de
+### modo que la oferta se conserva como evidencia del proceso.
+DELETE {{base}}/ofertas/{{ofertaId}}
+
+###
+DELETE {{base}}/licitaciones/{{licitacionId}}
+
+###
+DELETE {{base}}/proveedores/{{proveedorId}}
+
+###
+DELETE {{base}}/proveedores/{{segundoProveedorId}}
+
+###
+DELETE {{base}}/tipos-cambio/{{tipoCambioId}}
