@@ -75,4 +75,13 @@ public static class CodigosError
 
     /// <summary>El tipo de cambio solicitado no existe.</summary>
     public const string TipoCambioNoEncontrado = "TIPO_CAMBIO_NO_ENCONTRADO";
+
+    /// <summary>La solicitud no se pudo interpretar: falta un campo o su tipo no encaja.</summary>
+    public const string SolicitudInvalida = "SOLICITUD_INVALIDA";
+
+    /// <summary>La ruta solicitada no existe en la API.</summary>
+    public const string RutaNoEncontrada = "RUTA_NO_ENCONTRADA";
+
+    /// <summary>El verbo empleado no está permitido en esa ruta.</summary>
+    public const string MetodoNoPermitido = "METODO_NO_PERMITIDO";
 }

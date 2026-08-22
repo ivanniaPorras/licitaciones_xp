@@ -2,6 +2,7 @@ using Asp.Versioning;
 using Licitaciones.Api.Errores;
 using Licitaciones.Application;
 using Licitaciones.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,11 @@ var cadenaConexion = builder.Configuration.GetConnectionString("Default")
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+
+// Una solicitud que no se puede interpretar responde con la misma forma que el resto de
+// los errores del sistema, con su código propio y su identificador de correlación.
+builder.Services.Configure<ApiBehaviorOptions>(opciones =>
+    opciones.InvalidModelStateResponseFactory = RespuestaSolicitudInvalida.Crear);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opciones =>
 {
