@@ -3,6 +3,7 @@ using Licitaciones.Api.Errores;
 using Licitaciones.Application;
 using Licitaciones.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,25 @@ builder.Services.Configure<ApiBehaviorOptions>(opciones =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opciones =>
 {
+    opciones.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "API del Sistema de Gestión de Licitaciones",
+        Version = "v1",
+        Description =
+            "Interfaz de programación del sistema de licitaciones. Todas las rutas viven "
+            + "bajo api/v1 y devuelven objetos de transferencia, nunca entidades de "
+            + "persistencia.\n\n"
+            + "Los montos se expresan siempre en colones costarricenses. La lectura en "
+            + "dólares se obtiene con el recurso de conversión y no altera ningún dato "
+            + "almacenado.\n\n"
+            + "Los listados aceptan pagina, tamano, orden y busqueda, y responden con el "
+            + "total de elementos y de páginas. Los errores se devuelven como "
+            + "ProblemDetails con un código propio del dominio en la extensión code y un "
+            + "identificador de correlación en correlationId."
+    });
+
+    // Los comentarios de los controladores son la única documentación de cada operación:
+    // se generan al compilar y se incrustan aquí para no mantener dos textos distintos.
     var xml = Path.Combine(AppContext.BaseDirectory, "Licitaciones.Api.xml");
     if (File.Exists(xml))
     {
@@ -44,7 +64,12 @@ var app = builder.Build();
 app.UseMiddleware<MiddlewareExcepciones>();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(opciones =>
+{
+    opciones.SwaggerEndpoint("/swagger/v1/swagger.json", "Licitaciones v1");
+    opciones.DocumentTitle = "API de Licitaciones";
+    opciones.DisplayRequestDuration();
+});
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
