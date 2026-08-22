@@ -95,9 +95,10 @@ public sealed class TiposCambioEndpointsTests : IDisposable
 
         Assert.Equal(HttpStatusCode.OK, respuesta.StatusCode);
 
-        var todas = await _cliente.GetFromJsonAsync<List<TipoCambioResponse>>("/api/v1/tipos-cambio");
-        Assert.Single(todas!, t => t.Activo);
-        Assert.Equal(nueva.Id, todas!.Single(t => t.Activo).Id);
+        var todas = await _cliente.GetFromJsonAsync<PagedResponse<TipoCambioResponse>>(
+            "/api/v1/tipos-cambio?tamano=100");
+        Assert.Single(todas!.Elementos, t => t.Activo);
+        Assert.Equal(nueva.Id, todas.Elementos.Single(t => t.Activo).Id);
 
         // Se devuelve la tasa anterior a su lugar para no alterar a las demás pruebas.
         await _cliente.PostAsync(
@@ -147,8 +148,9 @@ public sealed class TiposCambioEndpointsTests : IDisposable
         var respuesta = await EliminarAsync(creada.Id);
         Assert.Equal(HttpStatusCode.NoContent, respuesta.StatusCode);
 
-        var todas = await _cliente.GetFromJsonAsync<List<TipoCambioResponse>>("/api/v1/tipos-cambio");
-        Assert.DoesNotContain(todas!, t => t.Id == creada.Id);
+        var todas = await _cliente.GetFromJsonAsync<PagedResponse<TipoCambioResponse>>(
+            "/api/v1/tipos-cambio?tamano=100");
+        Assert.DoesNotContain(todas!.Elementos, t => t.Id == creada.Id);
     }
 
     [Fact]
