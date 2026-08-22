@@ -1,3 +1,5 @@
+using Licitaciones.Application.Comun;
+
 namespace Licitaciones.Application.Aprobacion;
 
 /// <summary>Datos para registrar un nivel de aprobación.</summary>
@@ -30,3 +32,29 @@ public sealed record NivelAprobacionResponse(
     decimal? MontoMaximoCRC,
     bool EsRangoAbierto,
     string Aprobador);
+
+/// <summary>Filtros del listado de niveles de aprobación.</summary>
+public sealed record ConsultaNivelesAprobacion : ConsultaPaginada
+{
+    /// <summary>Crea la consulta con los valores por omisión.</summary>
+    public ConsultaNivelesAprobacion()
+    {
+    }
+
+    /// <summary>Crea la consulta indicando sus parámetros.</summary>
+    /// <param name="Pagina">Número de página.</param>
+    /// <param name="Tamano">Elementos por página.</param>
+    /// <param name="Orden">Campo y dirección de ordenamiento.</param>
+    /// <param name="Busqueda">Término de búsqueda sobre el aprobador.</param>
+    public ConsultaNivelesAprobacion(
+        int Pagina = 1,
+        int Tamano = TamanoPorDefecto,
+        string? Orden = null,
+        string? Busqueda = null)
+    {
+        this.Pagina = Pagina;
+        this.Tamano = Tamano;
+        this.Orden = Orden;
+        this.Busqueda = Busqueda;
+    }
+}

@@ -1,10 +1,10 @@
 @using Licitaciones.Application.Comun
 @using Licitaciones.Application.Licitaciones
 @using Licitaciones.Domain.Licitaciones
+@using Licitaciones.Web.Vistas
 @model PagedResponse<LicitacionResponse>
 @{
     ViewData["Title"] = "Licitaciones";
-    var orden = Context.Request.Query["orden"].ToString();
     var estadoActual = Context.Request.Query["estado"].ToString();
 }
 
@@ -37,7 +37,7 @@
 
 @if (Model is null || Model.Elementos.Count == 0)
 {
-    <p class="text-muted">No hay licitaciones registradas.</p>
+    <p class="text-muted">No hay licitaciones que coincidan con esos filtros.</p>
 }
 else
 {
@@ -46,21 +46,11 @@ else
             <caption>@Model.Total licitaciones</caption>
             <thead>
                 <tr>
-                    <th scope="col">
-                        <a asp-action="Index" asp-route-orden="@(orden == "codigo:asc" ? "codigo:desc" : "codigo:asc")"
-                           asp-route-estado="@estadoActual">
-                            Código @(orden.StartsWith("codigo", StringComparison.Ordinal) ? (orden.EndsWith("desc", StringComparison.Ordinal) ? "▼" : "▲") : "")
-                        </a>
-                    </th>
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("codigo", "Código"))" />
                     <th scope="col">Título</th>
                     <th scope="col">Estado</th>
                     <th scope="col">Presupuesto</th>
-                    <th scope="col">
-                        <a asp-action="Index" asp-route-orden="@(orden == "fechaCierre:asc" ? "fechaCierre:desc" : "fechaCierre:asc")"
-                           asp-route-estado="@estadoActual">
-                            Cierre @(orden.StartsWith("fechaCierre", StringComparison.Ordinal) ? (orden.EndsWith("desc", StringComparison.Ordinal) ? "▼" : "▲") : "")
-                        </a>
-                    </th>
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("fechaCierre", "Cierre"))" />
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>

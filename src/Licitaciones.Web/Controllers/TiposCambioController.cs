@@ -17,12 +17,15 @@ public sealed class TiposCambioController : Controller
     /// <param name="tiposCambio">Casos de uso de tipos de cambio.</param>
     public TiposCambioController(ITipoCambioService tiposCambio) => _tiposCambio = tiposCambio;
 
-    /// <summary>Listado de tasas, de la más reciente a la más antigua.</summary>
+    /// <summary>Listado con paginación, búsqueda por año de vigencia y ordenamiento.</summary>
+    /// <param name="consulta">Filtros del listado.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
     [HttpGet("")]
-    public async Task<IActionResult> Index(CancellationToken cancelacion)
+    public async Task<IActionResult> Index(
+        [FromQuery] ConsultaTiposCambio consulta,
+        CancellationToken cancelacion)
     {
-        var resultado = await _tiposCambio.ListarAsync(cancelacion);
+        var resultado = await _tiposCambio.ListarAsync(consulta, cancelacion);
 
         return View(resultado.Valor);
     }

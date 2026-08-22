@@ -1,5 +1,6 @@
 @using Licitaciones.Application.Comun
 @using Licitaciones.Application.Ofertas
+@using Licitaciones.Web.Vistas
 @using Microsoft.AspNetCore.Mvc.Rendering
 @model PagedResponse<OfertaResponse>
 @{
@@ -13,7 +14,12 @@
 <h1>Ofertas</h1>
 <partial name="_Mensajes" />
 
-<form method="get" class="row g-2 mb-3">
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-auto">
+        <label class="visually-hidden" for="busqueda">Buscar oferta</label>
+        <input type="search" class="form-control" id="busqueda" name="busqueda"
+               value="@Context.Request.Query["busqueda"]" placeholder="Código o proveedor" />
+    </div>
     <div class="col-auto">
         <label class="visually-hidden" for="licitacionId">Licitación</label>
         <select class="form-select" id="licitacionId" name="licitacionId">
@@ -55,16 +61,8 @@ else
                 <tr>
                     <th scope="col">Licitación</th>
                     <th scope="col">Proveedor</th>
-                    <th scope="col">
-                        <a asp-action="Index" asp-route-orden="monto:asc"
-                           asp-route-licitacionId="@licitacionActual"
-                           asp-route-proveedorId="@proveedorActual">Monto</a>
-                    </th>
-                    <th scope="col">
-                        <a asp-action="Index" asp-route-orden="fecha:asc"
-                           asp-route-licitacionId="@licitacionActual"
-                           asp-route-proveedorId="@proveedorActual">Registro</a>
-                    </th>
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("monto", "Monto"))" />
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("fecha", "Registro", "Index", "desc"))" />
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>

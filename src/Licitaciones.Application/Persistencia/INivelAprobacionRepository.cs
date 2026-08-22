@@ -23,6 +23,19 @@ public interface INivelAprobacionRepository
     /// <param name="cancelacion">Testigo de cancelación.</param>
     Task<NivelAprobacion?> ObtenerAplicableAsync(MontoCRC monto, CancellationToken cancelacion = default);
 
+    /// <summary>Lista los niveles con paginación, filtrado y ordenamiento.</summary>
+    /// <param name="busqueda">Término de búsqueda sobre el aprobador, o <c>null</c>.</param>
+    /// <param name="orden">Campo y dirección de ordenamiento, o <c>null</c> para el orden natural.</param>
+    /// <param name="pagina">Número de página, empezando en 1.</param>
+    /// <param name="tamano">Elementos por página.</param>
+    /// <param name="cancelacion">Testigo de cancelación.</param>
+    Task<(IReadOnlyList<NivelAprobacion> Elementos, int Total)> ListarAsync(
+        string? busqueda,
+        string? orden,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default);
+
     /// <summary>Agrega un nivel nuevo.</summary>
     /// <param name="nivel">Nivel que se va a guardar.</param>
     void Agregar(NivelAprobacion nivel);

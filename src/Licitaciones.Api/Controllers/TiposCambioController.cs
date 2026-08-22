@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Licitaciones.Api.Comun;
+using Licitaciones.Application.Comun;
 using Licitaciones.Application.Moneda;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,14 +30,16 @@ public sealed class TiposCambioController : ControladorApiBase
         _conversion = conversion;
     }
 
-    /// <summary>Lista las tasas registradas, de la más reciente a la más antigua.</summary>
+    /// <summary>Lista las tasas con paginación, filtrado y ordenamiento.</summary>
+    /// <param name="consulta">Página, tamaño, orden y año de vigencia buscado.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
     [HttpGet]
-    [ProducesResponseType<IReadOnlyList<TipoCambioResponse>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<TipoCambioResponse>>> Listar(
+    [ProducesResponseType<PagedResponse<TipoCambioResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<TipoCambioResponse>>> Listar(
+        [FromQuery] ConsultaTiposCambio consulta,
         CancellationToken cancelacion)
     {
-        var resultado = await _tiposCambio.ListarAsync(cancelacion);
+        var resultado = await _tiposCambio.ListarAsync(consulta, cancelacion);
 
         return Ok(resultado.Valor);
     }

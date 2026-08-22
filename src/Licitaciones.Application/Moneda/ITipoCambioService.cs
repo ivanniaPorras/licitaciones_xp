@@ -5,9 +5,12 @@ namespace Licitaciones.Application.Moneda;
 /// <summary>Casos de uso del módulo de tipo de cambio.</summary>
 public interface ITipoCambioService
 {
-    /// <summary>Lista las tasas registradas, de la más reciente a la más antigua.</summary>
+    /// <summary>Lista las tasas con paginación, filtrado y ordenamiento.</summary>
+    /// <param name="consulta">Filtros del listado.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
-    Task<Result<IReadOnlyList<TipoCambioResponse>>> ListarAsync(CancellationToken cancelacion = default);
+    Task<Result<PagedResponse<TipoCambioResponse>>> ListarAsync(
+        ConsultaTiposCambio consulta,
+        CancellationToken cancelacion = default);
 
     /// <summary>Consulta una tasa por su identificador.</summary>
     /// <param name="id">Tasa consultada.</param>

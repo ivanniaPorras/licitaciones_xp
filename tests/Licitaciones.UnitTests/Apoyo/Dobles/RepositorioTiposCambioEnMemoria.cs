@@ -18,8 +18,33 @@ public sealed class RepositorioTiposCambioEnMemoria : ITipoCambioRepository
     public Task<TipoCambio?> ObtenerActivoAsync(CancellationToken cancelacion = default) =>
         Task.FromResult(_tiposCambio.SingleOrDefault(t => t.Activo));
 
-    public Task<IReadOnlyList<TipoCambio>> ObtenerTodosAsync(CancellationToken cancelacion = default) =>
-        Task.FromResult<IReadOnlyList<TipoCambio>>([.. _tiposCambio.OrderByDescending(t => t.FechaVigencia)]);
+    public Task<(IReadOnlyList<TipoCambio> Elementos, int Total)> ListarAsync(
+        int? anioVigencia,
+        string? orden,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default)
+    {
+        var consulta = _tiposCambio.AsEnumerable();
+
+        if (anioVigencia is not null)
+        {
+            consulta = consulta.Where(t => t.FechaVigencia.Year == anioVigencia);
+        }
+
+        consulta = orden switch
+        {
+            "vigencia:asc" => consulta.OrderBy(t => t.FechaVigencia),
+            "tasa:asc" => consulta.OrderBy(t => t.CRCporUSD),
+            "tasa:desc" => consulta.OrderByDescending(t => t.CRCporUSD),
+            _ => consulta.OrderByDescending(t => t.FechaVigencia)
+        };
+
+        var filtrados = consulta.ToList();
+        var elementos = filtrados.Skip((pagina - 1) * tamano).Take(tamano).ToList();
+
+        return Task.FromResult<(IReadOnlyList<TipoCambio>, int)>((elementos, filtrados.Count));
+    }
 
     public void Agregar(TipoCambio tipoCambio) => _tiposCambio.Add(tipoCambio);
 

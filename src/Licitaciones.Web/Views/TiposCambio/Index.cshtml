@@ -1,5 +1,7 @@
+@using Licitaciones.Application.Comun
 @using Licitaciones.Application.Moneda
-@model IReadOnlyList<TipoCambioResponse>
+@using Licitaciones.Web.Vistas
+@model PagedResponse<TipoCambioResponse>
 @{
     ViewData["Title"] = "Tipo de cambio";
 }
@@ -13,26 +15,39 @@
     servicio externo de tasas.
 </p>
 
-<p><a class="btn btn-primary" asp-action="Create">Agregar tipo de cambio</a></p>
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-auto">
+        <label class="visually-hidden" for="busqueda">Buscar por año de vigencia</label>
+        <input type="search" class="form-control" id="busqueda" name="busqueda"
+               value="@Context.Request.Query["busqueda"]" placeholder="Año, por ejemplo 2026" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+    </div>
+    <div class="col-auto ms-auto">
+        <a class="btn btn-primary" asp-action="Create">Agregar tipo de cambio</a>
+    </div>
+</form>
 
-@if (Model is null || Model.Count == 0)
+@if (Model is null || Model.Elementos.Count == 0)
 {
-    <p class="text-muted">No hay tipos de cambio registrados.</p>
+    <p class="text-muted">No hay tipos de cambio que coincidan con la búsqueda.</p>
 }
 else
 {
     <div class="table-responsive">
         <table class="table table-striped align-middle">
+            <caption>@Model.Total tipos de cambio registrados</caption>
             <thead>
                 <tr>
-                    <th scope="col">Colones por dólar</th>
-                    <th scope="col">Vigente desde</th>
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("tasa", "Colones por dólar"))" />
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("vigencia", "Vigente desde", "Index", "desc"))" />
                     <th scope="col">Estado</th>
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-            @foreach (var tipoCambio in Model)
+            @foreach (var tipoCambio in Model.Elementos)
             {
                 <tr>
                     <td>@tipoCambio.CRCporUSD.ToString("N4")</td>
@@ -64,4 +79,6 @@ else
             </tbody>
         </table>
     </div>
+
+    <partial name="_Paginacion" model="@((Model.Pagina, Model.TotalPaginas, "Index"))" />
 }

@@ -22,10 +22,38 @@ public sealed class TipoCambioRepository : ITipoCambioRepository
         _contexto.TiposCambio.SingleOrDefaultAsync(t => t.Activo, cancelacion);
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<TipoCambio>> ObtenerTodosAsync(CancellationToken cancelacion = default) =>
-        await _contexto.TiposCambio
-            .OrderByDescending(t => t.FechaVigencia)
+    public async Task<(IReadOnlyList<TipoCambio> Elementos, int Total)> ListarAsync(
+        int? anioVigencia,
+        string? orden,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default)
+    {
+        var consulta = _contexto.TiposCambio.AsNoTracking();
+
+        // Se filtra por año y no por texto libre porque el listado solo tiene números y
+        // fechas: buscar el año es la única búsqueda que alguien escribiría de verdad.
+        if (anioVigencia is not null)
+        {
+            consulta = consulta.Where(t => t.FechaVigencia.Year == anioVigencia);
+        }
+
+        consulta = orden switch
+        {
+            "vigencia:asc" => consulta.OrderBy(t => t.FechaVigencia),
+            "tasa:asc" => consulta.OrderBy(t => t.CRCporUSD),
+            "tasa:desc" => consulta.OrderByDescending(t => t.CRCporUSD),
+            _ => consulta.OrderByDescending(t => t.FechaVigencia)
+        };
+
+        var total = await consulta.CountAsync(cancelacion);
+        var elementos = await consulta
+            .Skip((pagina - 1) * tamano)
+            .Take(tamano)
             .ToListAsync(cancelacion);
+
+        return (elementos, total);
+    }
 
     /// <inheritdoc />
     public void Agregar(TipoCambio tipoCambio) => _contexto.TiposCambio.Add(tipoCambio);

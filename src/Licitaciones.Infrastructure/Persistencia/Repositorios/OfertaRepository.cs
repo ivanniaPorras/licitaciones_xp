@@ -95,6 +95,25 @@ public sealed class OfertaRepository : IOfertaRepository
             consultaOfertas = consultaOfertas.Where(o => o.ProveedorId == proveedorId);
         }
 
+        // La búsqueda actúa sobre el código de la licitación y el nombre del proveedor,
+        // que viven en otras tablas. Se resuelve con subconsultas y no combinando después
+        // de paginar, porque filtrar sobre la página ya traída dejaría el total sin
+        // corregir y devolvería páginas incompletas.
+        if (!string.IsNullOrWhiteSpace(consulta.Busqueda))
+        {
+            var termino = consulta.Busqueda.Trim();
+
+            var licitaciones = _contexto.Licitaciones.IgnoreQueryFilters()
+                .Where(l => EF.Functions.ILike(l.Codigo, $"%{termino}%"))
+                .Select(l => l.Id);
+            var proveedores = _contexto.Proveedores.IgnoreQueryFilters()
+                .Where(p => EF.Functions.ILike(p.Nombre, $"%{termino}%"))
+                .Select(p => p.Id);
+
+            consultaOfertas = consultaOfertas.Where(o =>
+                licitaciones.Contains(o.LicitacionId) || proveedores.Contains(o.ProveedorId));
+        }
+
         consultaOfertas = consulta.Orden switch
         {
             "monto:desc" => consultaOfertas.OrderByDescending(o => o.Monto),
@@ -110,19 +129,6 @@ public sealed class OfertaRepository : IOfertaRepository
             .ToListAsync(cancelacion);
 
         var elementos = await CombinarConDetalleAsync(pagina, cancelacion);
-
-        // La búsqueda textual actúa sobre el código de la licitación y el nombre del
-        // proveedor, que viven en otras tablas; se aplica tras combinar.
-        if (!string.IsNullOrWhiteSpace(consulta.Busqueda))
-        {
-            var termino = consulta.Busqueda.Trim();
-            elementos =
-            [
-                .. elementos.Where(o =>
-                    o.CodigoLicitacion.Contains(termino, StringComparison.OrdinalIgnoreCase)
-                    || o.NombreProveedor.Contains(termino, StringComparison.OrdinalIgnoreCase))
-            ];
-        }
 
         return (elementos, total);
     }

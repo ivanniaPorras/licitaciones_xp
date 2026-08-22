@@ -37,6 +37,39 @@ public sealed class NivelAprobacionRepository : INivelAprobacionRepository
             .FirstOrDefaultAsync(cancelacion);
 
     /// <inheritdoc />
+    public async Task<(IReadOnlyList<NivelAprobacion> Elementos, int Total)> ListarAsync(
+        string? busqueda,
+        string? orden,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default)
+    {
+        var consulta = _contexto.NivelesAprobacion.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(busqueda))
+        {
+            var termino = busqueda.Trim();
+            consulta = consulta.Where(n => EF.Functions.ILike(n.Aprobador, $"%{termino}%"));
+        }
+
+        consulta = orden switch
+        {
+            "montoMinimo:desc" => consulta.OrderByDescending(n => n.MontoMinimo),
+            "aprobador:asc" => consulta.OrderBy(n => n.Aprobador),
+            "aprobador:desc" => consulta.OrderByDescending(n => n.Aprobador),
+            _ => consulta.OrderBy(n => n.MontoMinimo)
+        };
+
+        var total = await consulta.CountAsync(cancelacion);
+        var elementos = await consulta
+            .Skip((pagina - 1) * tamano)
+            .Take(tamano)
+            .ToListAsync(cancelacion);
+
+        return (elementos, total);
+    }
+
+    /// <inheritdoc />
     public void Agregar(NivelAprobacion nivel) => _contexto.NivelesAprobacion.Add(nivel);
 
     /// <inheritdoc />

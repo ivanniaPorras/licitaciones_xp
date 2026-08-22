@@ -7,6 +7,10 @@ namespace Licitaciones.Application.Moneda;
 /// <inheritdoc cref="ITipoCambioService" />
 public sealed class TipoCambioService : ITipoCambioService
 {
+    // Año que ninguna vigencia puede tener, para que una búsqueda que no es un año no
+    // devuelva el listado completo.
+    private const int AnioImposible = -1;
+
     private readonly ITipoCambioRepository _tiposCambio;
     private readonly IUnitOfWork _unidadDeTrabajo;
 
@@ -20,12 +24,25 @@ public sealed class TipoCambioService : ITipoCambioService
     }
 
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyList<TipoCambioResponse>>> ListarAsync(
+    public async Task<Result<PagedResponse<TipoCambioResponse>>> ListarAsync(
+        ConsultaTiposCambio consulta,
         CancellationToken cancelacion = default)
     {
-        var tiposCambio = await _tiposCambio.ObtenerTodosAsync(cancelacion);
+        ArgumentNullException.ThrowIfNull(consulta);
 
-        return Result<IReadOnlyList<TipoCambioResponse>>.Correcto([.. tiposCambio.Select(AResponse)]);
+        var (elementos, total) = await _tiposCambio.ListarAsync(
+            AnioDe(consulta.Busqueda),
+            consulta.Orden,
+            consulta.Pagina,
+            consulta.Tamano,
+            cancelacion);
+
+        return Result<PagedResponse<TipoCambioResponse>>.Correcto(
+            new PagedResponse<TipoCambioResponse>(
+                [.. elementos.Select(AResponse)],
+                consulta.Pagina,
+                consulta.Tamano,
+                total));
     }
 
     /// <inheritdoc />
@@ -150,6 +167,19 @@ public sealed class TipoCambioService : ITipoCambioService
         await _unidadDeTrabajo.GuardarCambiosAsync(cancelacion);
 
         return Result.Correcto();
+    }
+
+    // El listado solo contiene números y fechas, así que la búsqueda se interpreta como
+    // el año de vigencia. Un término que no sea un año deja el filtro sin coincidencias,
+    // que es la respuesta correcta a una búsqueda que no encuentra nada.
+    private static int? AnioDe(string? busqueda)
+    {
+        if (string.IsNullOrWhiteSpace(busqueda))
+        {
+            return null;
+        }
+
+        return int.TryParse(busqueda.Trim(), out var anio) ? anio : AnioImposible;
     }
 
     private static ErrorAplicacion NoEncontrado() => ErrorAplicacion.NoEncontrado(
