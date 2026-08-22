@@ -80,4 +80,6 @@ dependencias, entradas, salidas, reglas, errores y pruebas.
 | Persistencia | [modulos/persistencia.md](modulos/persistencia.md) |
 
 Las imágenes y evidencias se almacenan en [assets/](assets/) y se enlazan desde
-los archivos anteriores.
+los archivos anteriores. Ahí vive también
+[assets/licitaciones.http](assets/licitaciones.http), la colección reproducible de
+solicitudes que recorre el flujo completo de la API.

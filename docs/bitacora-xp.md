@@ -150,6 +150,32 @@ repetido lo mismo cinco veces.
 Con esta entrega la iteración 3 queda completa: las diez historias comprometidas están
 terminadas.
 
+**Entregas 10 y 11 — Interfaz y API transversales (HU-028 a HU-032, terminadas).**
+
+Se cerró la mitad transversal de la iteración 4, la que toca a todos los módulos a la vez
+en lugar de añadir uno nuevo.
+
+En la interfaz quedaron la página inicial explicativa con su diagrama del flujo, el
+alternador de tema claro y oscuro, y la paginación con búsqueda y ordenamiento en los cinco
+listados. Los dos listados que faltaban —niveles de aprobación y tipos de cambio— pasaron a
+devolver páginas en lugar de la colección completa, con su filtro y su orden resueltos en
+la base y no en memoria.
+
+En la API quedaron la descripción del contrato en la documentación interactiva, la
+colección reproducible de solicitudes y el cierre de los huecos que quedaban en el manejo
+de errores: las respuestas 400, 404 de ruta inexistente y 405 salían sin cuerpo o sin
+código propio.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 244 superadas |
+| `dotnet test` integración | 103 superadas |
+
+Quedan pendientes de la iteración 4 las tres historias de despliegue y verificación de
+extremo a extremo: HU-033, HU-034 y HU-035.
+
 ### Decisiones tomadas
 
 | Decisión | Razón |
@@ -161,6 +187,10 @@ terminadas.
 | Un tipo de cambio recién registrado queda fuera de uso hasta que alguien lo active. | Si al guardarlo quedara vigente de inmediato, registrar una tasa cambiaría sin querer todos los montos que ya se están mostrando. |
 | Al activar una tasa, la anterior se retira y se confirma antes de marcar la nueva. | El índice único parcial de PostgreSQL se comprueba en cada instrucción y no al cerrar la transacción, así que las dos marcas no pueden coexistir ni por un instante. |
 | Eliminar la tasa vigente está permitido y no se bloquea. | El cliente pidió poder eliminar tipos de cambio sin excepciones. Quedarse sin tasa activa no rompe nada: las pantallas siguen en colones y la conversión responde con un mensaje controlado. |
+| Los enlaces de ordenamiento y de paginación se construyen desde la cadena de consulta vigente. | Con un enlace que solo lleva su propio parámetro, pasar de página pierde la búsqueda y los filtros, y la lista completa reaparece justo después de haberla filtrado. |
+| La búsqueda del listado de tipos de cambio filtra por año de vigencia y no por texto libre. | El listado solo contiene números y fechas. Buscar el año es la única búsqueda que alguien escribiría de verdad, y se traduce a una consulta exacta en lugar de a una conversión de números a texto. |
+| El guion del tema se carga en el encabezado y de forma síncrona. | Cargado al final de la página, el navegador alcanza a pintar el tema por omisión y la corrección se ve como un parpadeo. |
+| Las hojas de estilo propias no fijan ningún color literal. | Con un valor literal, el modo oscuro hereda los tonos del claro y el contraste del texto deja de ser suficiente. |
 
 ### Velocidad
 
@@ -191,6 +221,8 @@ terminadas.
 | HU-024, HU-025 | `fe9d765` | `e5c4ad8` | — |
 | HU-026 | `c8bcadb` | `baeae97` | — |
 | HU-027 | `ac3d6ac` | `551b1ae` | — |
+| HU-030 | `b84e44f` | `3ca26ab` | — |
+| HU-032 | — | `795a1f2` | — |
 
 > HU-001 es una historia de preparación del repositorio: la prueba de arquitectura y la
 > estructura que verifica se crearon en el mismo commit porque la prueba no puede existir
@@ -240,6 +272,14 @@ terminadas.
   prueba `Crear_LlevaLaVigenciaAlInicioDeSuDiaEnTiempoUniversal` fija el caso comparando la
   misma fecha escrita desde dos husos distintos.
 
+- **Entrega 10** — Al añadirle el campo de búsqueda al listado de ofertas salió a la luz
+  que ese filtro se aplicaba **después** de paginar: se traía la página de la base y luego
+  se descartaban las filas que no coincidían. El resultado eran páginas incompletas y un
+  total que ignoraba la búsqueda. Se reescribió con subconsultas sobre el código de la
+  licitación y el nombre del proveedor, de modo que el filtro entra antes del conteo y de
+  la paginación. Los otros cuatro listados ya lo hacían bien; este se había quedado atrás
+  porque su búsqueda cruza dos tablas.
+
 ### Salvedad sobre el ciclo en la entrega 4
 
 Los repositorios y la unidad de trabajo (`ad58065`) se escribieron **antes** que sus
@@ -249,6 +289,20 @@ así que no había una decisión de diseño que la prueba pudiera guiar. Sus pru
 —`RepositoriosTests`— se escribieron enseguida y van en el mismo commit. Se registra aquí
 porque el historial debe reflejar lo que ocurrió, no lo que convendría que hubiera
 ocurrido.
+
+### Salvedad sobre el ciclo en la entrega 11
+
+HU-032 se escribió al revés: primero el manejo de los errores que faltaban (`795a1f2`) y
+enseguida las pruebas que lo verifican (`8d4d261`). No había una decisión de diseño que la
+prueba pudiera guiar, porque lo que faltaba era conectar tres piezas que ya existían al
+único camino que aún se escapaba. Se registra aquí porque el historial debe reflejar lo que
+ocurrió y no lo que convendría que hubiera ocurrido.
+
+HU-028 y HU-029 tampoco tienen prueba automatizada propia. Son historias de presentación
+—qué texto explica el sistema, si el tema se recuerda, si la página parpadea— y esas
+condiciones se comprueban en un navegador de verdad, que es exactamente lo que automatiza
+HU-035 en la entrega 13. Hasta entonces la verificación fue manual sobre la aplicación en
+marcha y así queda anotado en su trazabilidad.
 
 ### Sesiones de programación en pareja
 
