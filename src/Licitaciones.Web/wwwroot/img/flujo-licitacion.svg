@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" role="img"
+     aria-labelledby="tituloFlujo descripcionFlujo" class="diagrama-flujo">
+  <title id="tituloFlujo">Flujo de estados de una licitación</title>
+  <desc id="descripcionFlujo">
+    Una licitación nace en Borrador. Desde Borrador puede publicarse, si tiene los datos
+    completos, presupuesto mayor que cero y fecha de cierre futura, o cerrarse registrando
+    el motivo de la cancelación. Desde Publicada solo puede cerrarse, sea por decisión o
+    porque llegó su fecha de cierre. Cerrada es un estado final y no admite ninguna
+    transición posterior.
+  </desc>
+
+  <defs>
+    <marker id="punta" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+
+  <g fill="none" stroke="currentColor" stroke-width="2" color="currentColor">
+    <rect x="20" y="70" width="170" height="64" rx="10" />
+    <rect x="295" y="70" width="170" height="64" rx="10" />
+    <rect x="570" y="70" width="170" height="64" rx="10" />
+
+    <line x1="192" y1="102" x2="291" y2="102" marker-end="url(#punta)" />
+    <line x1="467" y1="102" x2="566" y2="102" marker-end="url(#punta)" />
+    <path d="M 105 136 C 105 200, 655 200, 655 138" marker-end="url(#punta)" />
+  </g>
+
+  <g font-family="system-ui, sans-serif" text-anchor="middle" fill="currentColor">
+    <text x="105" y="100" font-size="19" font-weight="600">Borrador</text>
+    <text x="105" y="122" font-size="12">se prepara el proceso</text>
+
+    <text x="380" y="100" font-size="19" font-weight="600">Publicada</text>
+    <text x="380" y="122" font-size="12">se reciben ofertas</text>
+
+    <text x="655" y="100" font-size="19" font-weight="600">Cerrada</text>
+    <text x="655" y="122" font-size="12">estado final</text>
+
+    <text x="241" y="60" font-size="12">publicar</text>
+    <text x="516" y="60" font-size="12">cerrar o vencer</text>
+    <text x="380" y="212" font-size="12">cancelar indicando el motivo</text>
+  </g>
+</svg>
