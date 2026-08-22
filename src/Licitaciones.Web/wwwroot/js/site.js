@@ -79,3 +79,52 @@
 
     mostrar(window.localStorage.getItem(CLAVE_PREFERENCIA) === 'USD' ? 'USD' : 'CRC');
 })();
+
+// Alternador del tema claro y oscuro. El tema ya quedó aplicado por tema.js antes de
+// pintar; aquí solo se atiende el cambio y se recuerda la elección.
+(function () {
+    'use strict';
+
+    var tema = window.TemaLicitaciones;
+    var alternador = document.getElementById('alternador-tema');
+    if (!tema || !alternador) {
+        return;
+    }
+
+    var botones = alternador.querySelectorAll('[data-tema]');
+
+    function marcar(elegido) {
+        for (var i = 0; i < botones.length; i++) {
+            var activo = botones[i].getAttribute('data-tema') === elegido;
+            botones[i].classList.toggle('active', activo);
+            botones[i].setAttribute('aria-pressed', activo ? 'true' : 'false');
+        }
+    }
+
+    for (var j = 0; j < botones.length; j++) {
+        botones[j].addEventListener('click', function (evento) {
+            var elegido = evento.currentTarget.getAttribute('data-tema');
+            tema.aplicar(elegido);
+            marcar(elegido);
+
+            try {
+                window.localStorage.setItem(tema.clave, elegido);
+            } catch (error) {
+                // Sin almacenamiento la elección dura lo que dure la página.
+            }
+        });
+    }
+
+    marcar(tema.guardado() || tema.preferenciaDelSistema());
+
+    // Mientras no haya elección propia, la página sigue al sistema si este cambia.
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+            if (!tema.guardado()) {
+                var delSistema = tema.preferenciaDelSistema();
+                tema.aplicar(delSistema);
+                marcar(delSistema);
+            }
+        });
+    }
+})();

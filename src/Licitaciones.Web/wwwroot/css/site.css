@@ -9,23 +9,39 @@ html {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem var(--bs-body-bg), 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* Los encabezados que ordenan se leen como texto normal, no como enlaces sueltos. */
+.enlace-orden {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-body {
-  margin-bottom: 60px;
+.enlace-orden:hover,
+.enlace-orden:focus {
+  text-decoration: underline;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* La columna que está ordenando se distingue del resto de los encabezados. */
+.enlace-orden.orden-activo {
+  font-weight: 700;
+  color: var(--bs-primary);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.indicador-orden {
+  margin-left: 0.25rem;
+  font-size: 0.75em;
+}
+
+/* El diagrama del flujo se adapta a pantallas de teléfono sin desbordar. */
+.diagrama-flujo {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Las tarjetas de la página inicial mantienen la misma altura en cada fila. */
+.tarjeta-seccion {
+  height: 100%;
 }
