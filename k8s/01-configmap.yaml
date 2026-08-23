@@ -1,0 +1,22 @@
+# Configuración que no es sensible. Las credenciales van aparte, en un secreto.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: licitaciones-config
+  namespace: licitaciones
+  labels:
+    app.kubernetes.io/part-of: licitaciones
+data:
+  POSTGRES_DB: licitaciones
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+
+  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_HTTP_PORTS: "8080"
+  # Quien termina TLS es el ingreso del clúster. Con la redirección puesta, toda petición
+  # que llega en claro al contenedor respondería un 307.
+  ASPNETCORE_HTTPS_PORTS: ""
+
+  # Enlace del menú a la documentación interactiva. Se ajusta al anfitrión real del
+  # clúster cuando se publica por ingreso.
+  Api__UrlDocumentacion: http://localhost:30081/swagger
