@@ -54,14 +54,14 @@ public sealed class NivelesAprobacionEndpointsTests : IDisposable
     [Fact]
     public async Task Listar_DevuelveLosTresNivelesDeLaSemilla()
     {
-        var niveles = await _cliente.GetFromJsonAsync<List<NivelAprobacionResponse>>(
+        var niveles = await _cliente.GetFromJsonAsync<PagedResponse<NivelAprobacionResponse>>(
             "/api/v1/niveles-aprobacion");
 
         // Se comprueba que estén los tres niveles sembrados. No se afirma que haya un
         // único rango abierto: las pruebas comparten la misma base y otras insertan
         // niveles por el contexto, saltándose el servicio. Esa regla la verifica
         // Crear_UnSegundoRangoAbierto_DevuelveConflicto.
-        var aprobadores = niveles!.Select(n => n.Aprobador).ToList();
+        var aprobadores = niveles!.Elementos.Select(n => n.Aprobador).ToList();
         Assert.Contains("Encargado de área", aprobadores);
         Assert.Contains("Gerencia", aprobadores);
         Assert.Contains("Junta Directiva", aprobadores);

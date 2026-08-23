@@ -1,0 +1,24 @@
+@using Licitaciones.Application.Moneda
+@model TipoCambioResponse
+@{
+    ViewData["Title"] = "Eliminar tipo de cambio";
+}
+
+<h1>Eliminar tipo de cambio</h1>
+
+<div class="alert alert-warning" role="alert">
+    ¿Confirma eliminar la tasa de <strong>@Model.CRCporUSD.ToString("N4")</strong> colones
+    por dólar, vigente desde @Model.FechaVigencia.UtcDateTime.ToString("dd/MM/yyyy")?
+    @if (Model.Activo)
+    {
+        <text>
+            Es la tasa que está en uso: mientras no se active otra, los montos no podrán
+            leerse en dólares.
+        </text>
+    }
+</div>
+
+<form method="post" asp-action="DeleteConfirmed" asp-route-id="@Model.Id">
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>

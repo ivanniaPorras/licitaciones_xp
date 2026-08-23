@@ -17,12 +17,15 @@ public sealed class NivelesAprobacionController : Controller
     /// <param name="niveles">Casos de uso de niveles de aprobación.</param>
     public NivelesAprobacionController(INivelAprobacionService niveles) => _niveles = niveles;
 
-    /// <summary>Listado de niveles ordenados por su monto mínimo.</summary>
+    /// <summary>Listado con paginación, búsqueda por aprobador y ordenamiento.</summary>
+    /// <param name="consulta">Filtros del listado.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
     [HttpGet("")]
-    public async Task<IActionResult> Index(CancellationToken cancelacion)
+    public async Task<IActionResult> Index(
+        [FromQuery] ConsultaNivelesAprobacion consulta,
+        CancellationToken cancelacion)
     {
-        var resultado = await _niveles.ListarAsync(cancelacion);
+        var resultado = await _niveles.ListarAsync(consulta, cancelacion);
 
         return View(resultado.Valor);
     }

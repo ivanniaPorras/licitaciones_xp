@@ -1,3 +1,4 @@
+using Licitaciones.Application.Comun;
 using Licitaciones.Domain.Excepciones;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +36,11 @@ public sealed class MiddlewareExcepciones
         try
         {
             await _siguiente(contexto);
+
+            // Una ruta que no existe o un verbo no admitido salen del enrutador con el
+            // código puesto pero sin cuerpo. Se completan aquí para que ninguna respuesta
+            // de error de la API llegue sin código propio ni identificador de correlación.
+            await CompletarRespuestaSinCuerpoAsync(contexto);
         }
         catch (ReglaNegocioException error)
         {
@@ -47,6 +53,11 @@ public sealed class MiddlewareExcepciones
             await EscribirAsync(contexto, StatusCodes.Status409Conflict, "Conflicto con el estado actual",
                 error.Message, "REGLA_NEGOCIO");
         }
+        catch (OperationCanceledException) when (contexto.RequestAborted.IsCancellationRequested)
+        {
+            // La persona usuaria cerró la pestaña. No es un fallo del servidor y no debe
+            // registrarse como tal ni intentar escribir en una respuesta ya abandonada.
+        }
         catch (Exception error)
         {
             _registro.LogError(
@@ -57,6 +68,31 @@ public sealed class MiddlewareExcepciones
             await EscribirAsync(contexto, StatusCodes.Status500InternalServerError, "Error interno",
                 "Ocurrió un error inesperado. Intente de nuevo o contacte a soporte.", "ERROR_INTERNO");
         }
+    }
+
+    private static Task CompletarRespuestaSinCuerpoAsync(HttpContext contexto)
+    {
+        if (contexto.Response.HasStarted || contexto.Response.ContentLength > 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        return contexto.Response.StatusCode switch
+        {
+            StatusCodes.Status404NotFound => EscribirAsync(
+                contexto,
+                StatusCodes.Status404NotFound,
+                "Recurso no encontrado",
+                "La ruta solicitada no existe en esta API.",
+                CodigosError.RutaNoEncontrada),
+            StatusCodes.Status405MethodNotAllowed => EscribirAsync(
+                contexto,
+                StatusCodes.Status405MethodNotAllowed,
+                "Método no permitido",
+                "Esa ruta no admite el verbo empleado.",
+                CodigosError.MetodoNoPermitido),
+            _ => Task.CompletedTask
+        };
     }
 
     private static async Task EscribirAsync(

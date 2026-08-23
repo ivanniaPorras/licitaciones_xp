@@ -14,9 +14,18 @@ public interface ITipoCambioRepository
     /// <param name="cancelacion">Testigo de cancelación.</param>
     Task<TipoCambio?> ObtenerActivoAsync(CancellationToken cancelacion = default);
 
-    /// <summary>Devuelve todos los tipos de cambio, del más reciente al más antiguo.</summary>
+    /// <summary>Lista los tipos de cambio con paginación, filtrado y ordenamiento.</summary>
+    /// <param name="anioVigencia">Año de vigencia por el que se filtra, o <c>null</c>.</param>
+    /// <param name="orden">Campo y dirección de ordenamiento, o <c>null</c> para el orden natural.</param>
+    /// <param name="pagina">Número de página, empezando en 1.</param>
+    /// <param name="tamano">Elementos por página.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
-    Task<IReadOnlyList<TipoCambio>> ObtenerTodosAsync(CancellationToken cancelacion = default);
+    Task<(IReadOnlyList<TipoCambio> Elementos, int Total)> ListarAsync(
+        int? anioVigencia,
+        string? orden,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default);
 
     /// <summary>Agrega un tipo de cambio nuevo.</summary>
     /// <param name="tipoCambio">Tipo de cambio que se va a guardar.</param>

@@ -1,0 +1,40 @@
+@using Licitaciones.Application.Moneda
+@model CrearTipoCambioRequest
+@{
+    ViewData["Title"] = "Agregar tipo de cambio";
+}
+
+<h1>Agregar tipo de cambio</h1>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form method="post" class="col-md-8">
+    <div class="mb-3">
+        <label class="form-label" for="CRCporUSD">Colones por dólar</label>
+        <input class="form-control" id="CRCporUSD" name="CRCporUSD"
+               type="number" step="0.0001" min="0.0001" inputmode="decimal" required
+               value="@Model.CRCporUSD.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+        <div class="form-text">
+            Admite hasta cuatro decimales, porque es un factor de conversión y no una
+            cantidad de dinero.
+        </div>
+        <span asp-validation-for="CRCporUSD" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="FechaVigencia">Fecha de vigencia</label>
+        <input class="form-control" id="FechaVigencia" name="FechaVigencia" type="date" required
+               value="@Model.FechaVigencia.UtcDateTime.ToString("yyyy-MM-dd")" />
+        <div class="form-text">Se muestra junto a cada monto convertido.</div>
+        <span asp-validation-for="FechaVigencia" class="text-danger"></span>
+    </div>
+
+    <div class="alert alert-info" role="note">
+        La tasa se guarda fuera de uso. Para empezar a convertir con ella hay que activarla
+        desde el listado.
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -127,6 +127,80 @@ OpenAPI y el middleware global de excepciones.
 | `dotnet test` unitarias | 204 superadas |
 | `dotnet test` integración | 75 superadas |
 
+**Entrega 9 — Tipo de cambio y montos en dólares (HU-026, HU-027, terminadas).**
+
+Se cerró la vertical del tipo de cambio sobre la infraestructura compartida que dejó la
+entrega 5. Quedaron implementados el servicio de aplicación con el recorrido completo de
+creación, consulta, edición y eliminación, la activación de la tasa vigente dentro de una
+transacción, el servicio de conversión con su redondeo alejándose de cero, los endpoints
+bajo `api/v1/tipos-cambio` y las pantallas MVC.
+
+La lectura en dólares se resolvió con un alternador en la barra de navegación, apoyado en
+los marcadores `data-crc` que ya traían las diez vistas de los otros módulos. La tasa se
+publica con un componente de vista y no cargándola en cada controlador, que habría
+repetido lo mismo cinco veces.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 233 superadas |
+| `dotnet test` integración | 86 superadas |
+
+Con esta entrega la iteración 3 queda completa: las diez historias comprometidas están
+terminadas.
+
+**Entregas 10 y 11 — Interfaz y API transversales (HU-028 a HU-032, terminadas).**
+
+Se cerró la mitad transversal de la iteración 4, la que toca a todos los módulos a la vez
+en lugar de añadir uno nuevo.
+
+En la interfaz quedaron la página inicial explicativa con su diagrama del flujo, el
+alternador de tema claro y oscuro, y la paginación con búsqueda y ordenamiento en los cinco
+listados. Los dos listados que faltaban —niveles de aprobación y tipos de cambio— pasaron a
+devolver páginas en lugar de la colección completa, con su filtro y su orden resueltos en
+la base y no en memoria.
+
+En la API quedaron la descripción del contrato en la documentación interactiva, la
+colección reproducible de solicitudes y el cierre de los huecos que quedaban en el manejo
+de errores: las respuestas 400, 404 de ruta inexistente y 405 salían sin cuerpo o sin
+código propio.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 244 superadas |
+| `dotnet test` integración | 103 superadas |
+
+Quedan pendientes de la iteración 4 las tres historias de despliegue y verificación de
+extremo a extremo: HU-033, HU-034 y HU-035.
+
+**Entregas 12 a 14 — Despliegue y verificación de extremo a extremo (HU-033 a HU-035, terminadas).**
+
+Se cerró el proyecto. Quedaron la imagen multietapa que corre sin privilegios, el archivo
+de Compose que levanta base, migraciones, web y API con sus comprobaciones de salud, los
+manifiestos de Kubernetes con almacenamiento persistente y las tres sondas, y las pruebas
+de navegador que recorren el sistema completo.
+
+Las migraciones dejaron de ser un efecto del arranque y pasaron a ser un paso propio,
+invocado con `--aplicar-migraciones`. Es la misma imagen en los dos entornos: un servicio
+de Compose y un Job de Kubernetes.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 244 superadas |
+| `dotnet test` integración | 103 superadas |
+| `dotnet test` funcionales | 7 superadas |
+| Cobertura de `Domain` | 98,6 % |
+| Cobertura de `Application` | 88,2 % |
+| Cobertura del proyecto completo | 81,2 % |
+| `docker compose up --build` | los tres servicios en `healthy` |
+
+Las 35 historias quedan terminadas.
+
 ### Decisiones tomadas
 
 | Decisión | Razón |
@@ -135,6 +209,17 @@ OpenAPI y el middleware global de excepciones.
 | Los finales de línea se normalizan a LF en todo el repositorio. | La integración continua verifica el formato sobre Linux; con finales de línea distintos, el mismo archivo pasaría en una máquina y fallaría en la otra. |
 | La entrega 1 se integra desde la rama `estructura-inicial`. | No corresponde a una historia funcional, sino a la preparación del repositorio. A partir de la entrega 3 las ramas se nombran por historia. |
 | No se implementa la reapertura de una licitación cerrada. | El enunciado la admite solo con una regla aprobada previamente por la persona docente. Se documenta en el módulo de licitaciones. |
+| Un tipo de cambio recién registrado queda fuera de uso hasta que alguien lo active. | Si al guardarlo quedara vigente de inmediato, registrar una tasa cambiaría sin querer todos los montos que ya se están mostrando. |
+| Al activar una tasa, la anterior se retira y se confirma antes de marcar la nueva. | El índice único parcial de PostgreSQL se comprueba en cada instrucción y no al cerrar la transacción, así que las dos marcas no pueden coexistir ni por un instante. |
+| Eliminar la tasa vigente está permitido y no se bloquea. | El cliente pidió poder eliminar tipos de cambio sin excepciones. Quedarse sin tasa activa no rompe nada: las pantallas siguen en colones y la conversión responde con un mensaje controlado. |
+| Los enlaces de ordenamiento y de paginación se construyen desde la cadena de consulta vigente. | Con un enlace que solo lleva su propio parámetro, pasar de página pierde la búsqueda y los filtros, y la lista completa reaparece justo después de haberla filtrado. |
+| La búsqueda del listado de tipos de cambio filtra por año de vigencia y no por texto libre. | El listado solo contiene números y fechas. Buscar el año es la única búsqueda que alguien escribiría de verdad, y se traduce a una consulta exacta en lugar de a una conversión de números a texto. |
+| El guion del tema se carga en el encabezado y de forma síncrona. | Cargado al final de la página, el navegador alcanza a pintar el tema por omisión y la corrección se ve como un parpadeo. |
+| Las hojas de estilo propias no fijan ningún color literal. | Con un valor literal, el modo oscuro hereda los tonos del claro y el contraste del texto deja de ser suficiente. |
+| Las migraciones se aplican en un paso propio y no al arrancar la aplicación. | Con varias réplicas, todas intentarían migrar a la vez sobre la misma base. Es la misma imagen invocada con un argumento, así que sirve igual en Compose y en Kubernetes. |
+| La sonda de vitalidad no consulta la base de datos. | Reiniciar un contenedor sano porque la base va lenta produce un ciclo de reinicios que no arregla nada. Quien decide si un pod recibe tráfico es la sonda de disponibilidad. |
+| Las pruebas de navegador publican la aplicación y la ejecutan como proceso aparte. | Un navegador necesita un servidor que escuche en un puerto real, y desde la carpeta de compilación los archivos estáticos se sirven vacíos porque `wwwroot` solo se coloca en su sitio al publicar. |
+| El monto en dólares se arma anteponiendo el símbolo a mano. | El formato de moneda del navegador escribe unas veces `US$` y otras `USD` según sus datos regionales, y el mismo monto se leería distinto en cada máquina. |
 
 ### Velocidad
 
@@ -163,6 +248,10 @@ OpenAPI y el middleware global de excepciones.
 | HU-015 a HU-017 | `72f5790` | `f4be3f1` | — |
 | HU-018 a HU-022 | `f9c9efe` | `bd80333` | `30b13d7` |
 | HU-024, HU-025 | `fe9d765` | `e5c4ad8` | — |
+| HU-026 | `c8bcadb` | `baeae97` | — |
+| HU-027 | `ac3d6ac` | `551b1ae` | — |
+| HU-030 | `b84e44f` | `3ca26ab` | — |
+| HU-032 | — | `795a1f2` | — |
 
 > HU-001 es una historia de preparación del repositorio: la prueba de arquitectura y la
 > estructura que verifica se crearon en el mismo commit porque la prueba no puede existir
@@ -203,6 +292,36 @@ OpenAPI y el middleware global de excepciones.
   reescribió para filtrar y ordenar sobre las entidades y combinar después
   (`30b13d7`). Sin las pruebas de endpoint el fallo habría llegado a la interfaz.
 
+- **Entrega 9** — Al revisar la aplicación en el navegador, la tasa sembrada con vigencia
+  del 1 de enero de 2026 aparecía como *31/12/2025*. Las vistas convertían la fecha a hora
+  local, y una vigencia guardada a medianoche universal cae en el día anterior desde Costa
+  Rica. La vigencia no es un instante sino una fecha de calendario, así que la corrección
+  no fue en la vista sino en el dominio: `TipoCambio.Crear` conserva el día escrito y lo
+  ancla a medianoche en tiempo universal, y las pantallas lo muestran sin convertir. La
+  prueba `Crear_LlevaLaVigenciaAlInicioDeSuDiaEnTiempoUniversal` fija el caso comparando la
+  misma fecha escrita desde dos husos distintos.
+
+- **Entrega 10** — Al añadirle el campo de búsqueda al listado de ofertas salió a la luz
+  que ese filtro se aplicaba **después** de paginar: se traía la página de la base y luego
+  se descartaban las filas que no coincidían. El resultado eran páginas incompletas y un
+  total que ignoraba la búsqueda. Se reescribió con subconsultas sobre el código de la
+  licitación y el nombre del proveedor, de modo que el filtro entra antes del conteo y de
+  la paginación. Los otros cuatro listados ya lo hacían bien; este se había quedado atrás
+  porque su búsqueda cruza dos tablas.
+
+- **Entrega 13** — Al escribir el recorrido en navegador, el formulario de licitaciones
+  rechazaba un presupuesto perfectamente válido. La aplicación se presenta con la cultura
+  de Costa Rica, donde el punto separa los miles, pero un campo `input type="number"`
+  **siempre** envía el valor en formato invariante. Así, `10000000.00` llegaba al servidor
+  y `es-CR` no lo podía interpretar, porque su último grupo tiene dos dígitos en lugar de
+  tres: el monto se enlazaba como cero y el formulario rechazaba el dato bien escrito.
+
+  El defecto llevaba ahí desde la entrega 5 y **ninguna prueba anterior podía verlo**: las
+  de la API envían JSON, que se interpreta siempre en formato invariante. Hizo falta un
+  navegador enviando un formulario de verdad. Se corrigió con `EnlazadorDecimalInvariante`,
+  que prueba primero la cultura invariante y después la del sitio. Es el argumento más
+  claro que dio el proyecto a favor de HU-035.
+
 ### Salvedad sobre el ciclo en la entrega 4
 
 Los repositorios y la unidad de trabajo (`ad58065`) se escribieron **antes** que sus
@@ -212,6 +331,20 @@ así que no había una decisión de diseño que la prueba pudiera guiar. Sus pru
 —`RepositoriosTests`— se escribieron enseguida y van en el mismo commit. Se registra aquí
 porque el historial debe reflejar lo que ocurrió, no lo que convendría que hubiera
 ocurrido.
+
+### Salvedad sobre el ciclo en la entrega 11
+
+HU-032 se escribió al revés: primero el manejo de los errores que faltaban (`795a1f2`) y
+enseguida las pruebas que lo verifican (`8d4d261`). No había una decisión de diseño que la
+prueba pudiera guiar, porque lo que faltaba era conectar tres piezas que ya existían al
+único camino que aún se escapaba. Se registra aquí porque el historial debe reflejar lo que
+ocurrió y no lo que convendría que hubiera ocurrido.
+
+HU-028 y HU-029 tampoco tienen prueba automatizada propia. Son historias de presentación
+—qué texto explica el sistema, si el tema se recuerda, si la página parpadea— y esas
+condiciones se comprueban en un navegador de verdad, que es exactamente lo que automatiza
+HU-035 en la entrega 13. Hasta entonces la verificación fue manual sobre la aplicación en
+marcha y así queda anotado en su trazabilidad.
 
 ### Sesiones de programación en pareja
 

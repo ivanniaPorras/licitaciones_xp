@@ -1,0 +1,15 @@
+@using Licitaciones.Web.Vistas
+@model ColumnaOrdenable
+@{
+    var estado = ParametrosListado.EstadoDe(
+        Context.Request.Query["orden"].ToString(),
+        Model.Campo,
+        Model.DireccionInicial);
+}
+<th scope="col" aria-sort="@estado.AriaSort">
+    <a class="enlace-orden @(estado.Activa ? "orden-activo" : null)"
+       asp-action="@Model.Accion"
+       asp-all-route-data="@ParametrosListado.ConOrden(Context.Request, estado.OrdenDestino)">
+        @Model.Titulo<span class="indicador-orden" aria-hidden="true">@estado.Indicador</span>
+    </a>
+</th>

@@ -29,7 +29,18 @@ Detalle completo en [docker.md](docker.md) y [pruebas.md](pruebas.md).
 
 ## Entrega evaluable
 
-El tag de entrega se documentará aquí al cierre de la cuarta iteración.
+Las 35 historias de usuario están terminadas. El estado de cada una y su trazabilidad a
+pruebas y commits se consultan en [historias-usuario.md](historias-usuario.md).
+
+| Verificación | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| Pruebas unitarias | 244 superadas |
+| Pruebas de integración | 103 superadas |
+| Pruebas de navegador | 7 superadas |
+| Cobertura de dominio y aplicación | 98,6 % y 88,2 % |
+| Cobertura del proyecto completo | 81,2 % |
 
 ## Índice de la documentación
 
@@ -63,6 +74,9 @@ documentos Word, PDF, PowerPoint ni anexos externos.
 | [docker.md](docker.md) | Construcción de la imagen, Docker Compose y demostración de persistencia. |
 | [kubernetes.md](kubernetes.md) | Manifiestos, despliegue, sondas, almacenamiento persistente y evidencias. |
 
+Los manifiestos de Kubernetes viven en [../k8s/](../k8s/) y los archivos de contenedor
+—`Dockerfile` y `compose.yaml`— en la raíz del repositorio.
+
 ### Documentación por módulo
 
 Cada archivo desarrolla los ocho encabezados fijos: propósito, responsabilidades,
@@ -80,4 +94,6 @@ dependencias, entradas, salidas, reglas, errores y pruebas.
 | Persistencia | [modulos/persistencia.md](modulos/persistencia.md) |
 
 Las imágenes y evidencias se almacenan en [assets/](assets/) y se enlazan desde
-los archivos anteriores.
+los archivos anteriores. Ahí vive también
+[assets/licitaciones.http](assets/licitaciones.http), la colección reproducible de
+solicitudes que recorre el flujo completo de la API.

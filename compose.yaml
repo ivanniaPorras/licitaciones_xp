@@ -1,0 +1,111 @@
+# Sistema completo con un solo comando: docker compose up --build
+#
+# Levanta PostgreSQL, aplica las migraciones en un paso propio y solo entonces arranca la
+# aplicación web y la API. Las credenciales salen del archivo .env, que no se versiona.
+
+name: licitaciones
+
+services:
+  # -------------------------------------------------------------------------------------
+  # Base de datos
+  # -------------------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?defina POSTGRES_USER en el archivo .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en el archivo .env}
+      POSTGRES_DB: licitaciones
+      # Sin esto, el orden de los nombres dependería de la configuración regional del
+      # contenedor y no coincidiría con lo que verifican las pruebas.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    volumes:
+      # Volumen con nombre: los datos sobreviven a detener y volver a levantar.
+      - datos-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d licitaciones"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  # -------------------------------------------------------------------------------------
+  # Migraciones
+  # Corre una sola vez, aplica lo pendiente y termina. La web y la API esperan a que salga
+  # con código cero, de modo que nunca arrancan sobre un esquema incompleto.
+  # -------------------------------------------------------------------------------------
+  migraciones:
+    build:
+      context: .
+      args:
+        PROYECTO: Licitaciones.Api
+    command: ["--aplicar-migraciones"]
+    environment:
+      ConnectionStrings__Default: >-
+        Host=db;Port=5432;Database=licitaciones;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  # -------------------------------------------------------------------------------------
+  # Aplicación web
+  # -------------------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      args:
+        PROYECTO: Licitaciones.Web
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__Default: >-
+        Host=db;Port=5432;Database=licitaciones;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      Api__UrlDocumentacion: http://localhost:8081/swagger
+      # Quien termina TLS es el proxy de delante. Con la redirección puesta, toda petición
+      # en claro dentro del contenedor respondería un 307.
+      ASPNETCORE_HTTPS_PORTS: ""
+    depends_on:
+      db:
+        condition: service_healthy
+      migraciones:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
+  # -------------------------------------------------------------------------------------
+  # API
+  # -------------------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      args:
+        PROYECTO: Licitaciones.Api
+    ports:
+      - "8081:8080"
+    environment:
+      ConnectionStrings__Default: >-
+        Host=db;Port=5432;Database=licitaciones;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      # La redirección a HTTPS se apaga dentro del contenedor: quien termina TLS es el
+      # proxy de delante, y con ella puesta toda petición en claro respondería un 307.
+      ASPNETCORE_HTTPS_PORTS: ""
+    depends_on:
+      db:
+        condition: service_healthy
+      migraciones:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  datos-postgres:

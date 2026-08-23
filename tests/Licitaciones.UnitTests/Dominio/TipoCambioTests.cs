@@ -47,6 +47,45 @@ public sealed class TipoCambioTests
     }
 
     [Fact]
+    public void Crear_LlevaLaVigenciaAlInicioDeSuDiaEnTiempoUniversal()
+    {
+        // La misma fecha escrita desde Costa Rica y desde Europa debe guardarse igual.
+        var desdeCostaRica = TipoCambio.Crear(
+            512.00m,
+            new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(-6)));
+        var desdeEuropa = TipoCambio.Crear(
+            512.00m,
+            new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.FromHours(2)));
+
+        var esperada = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        Assert.Equal(esperada, desdeCostaRica.FechaVigencia);
+        Assert.Equal(esperada, desdeEuropa.FechaVigencia);
+    }
+
+    [Fact]
+    public void CambiarTasa_ActualizaLaTasaYSuFechaSinTocarElUso()
+    {
+        var tipoCambio = TipoCambio.Crear(512.00m, Vigencia);
+        tipoCambio.Activar();
+        var nuevaVigencia = Vigencia.AddMonths(1);
+
+        tipoCambio.CambiarTasa(530.2500m, nuevaVigencia);
+
+        Assert.Equal(530.2500m, tipoCambio.CRCporUSD);
+        Assert.Equal(nuevaVigencia, tipoCambio.FechaVigencia);
+        Assert.True(tipoCambio.Activo);
+    }
+
+    [Fact]
+    public void CambiarTasa_ConTasaNoPositiva_DejaElRegistroIntacto()
+    {
+        var tipoCambio = TipoCambio.Crear(512.00m, Vigencia);
+
+        Assert.Throws<MontoInvalidoException>(() => tipoCambio.CambiarTasa(0m, Vigencia));
+        Assert.Equal(512.00m, tipoCambio.CRCporUSD);
+    }
+
+    [Fact]
     public void Activar_MarcaElRegistroComoActivo()
     {
         var tipoCambio = TipoCambio.Crear(512.00m, Vigencia);

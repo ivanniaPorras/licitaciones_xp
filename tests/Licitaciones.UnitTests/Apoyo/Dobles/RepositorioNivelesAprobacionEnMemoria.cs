@@ -24,6 +24,36 @@ public sealed class RepositorioNivelesAprobacionEnMemoria : INivelAprobacionRepo
         CancellationToken cancelacion = default) =>
         Task.FromResult(_niveles.OrderBy(n => n.MontoMinimo).FirstOrDefault(n => n.Cubre(monto)));
 
+    public Task<(IReadOnlyList<NivelAprobacion> Elementos, int Total)> ListarAsync(
+        string? busqueda,
+        string? orden,
+        int pagina,
+        int tamano,
+        CancellationToken cancelacion = default)
+    {
+        var consulta = _niveles.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(busqueda))
+        {
+            consulta = consulta.Where(n => n.Aprobador.Contains(
+                busqueda.Trim(),
+                StringComparison.OrdinalIgnoreCase));
+        }
+
+        consulta = orden switch
+        {
+            "montoMinimo:desc" => consulta.OrderByDescending(n => n.MontoMinimo),
+            "aprobador:asc" => consulta.OrderBy(n => n.Aprobador, StringComparer.Ordinal),
+            "aprobador:desc" => consulta.OrderByDescending(n => n.Aprobador, StringComparer.Ordinal),
+            _ => consulta.OrderBy(n => n.MontoMinimo)
+        };
+
+        var filtrados = consulta.ToList();
+        var elementos = filtrados.Skip((pagina - 1) * tamano).Take(tamano).ToList();
+
+        return Task.FromResult<(IReadOnlyList<NivelAprobacion>, int)>((elementos, filtrados.Count));
+    }
+
     public void Agregar(NivelAprobacion nivel) => _niveles.Add(nivel);
 
     public void Eliminar(NivelAprobacion nivel) => _niveles.Remove(nivel);

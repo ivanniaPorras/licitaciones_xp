@@ -1,0 +1,8 @@
+# Espacio de nombres propio: todo lo del sistema vive aquí y se borra junto con él.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: licitaciones
+  labels:
+    app.kubernetes.io/name: licitaciones
+    app.kubernetes.io/part-of: licitaciones

@@ -40,5 +40,41 @@ jobs:
             exit 1
           fi
 
-      - name: Ejecutar pruebas
-        run: dotnet test --no-build -c Release --verbosity normal
+      - name: Ejecutar pruebas unitarias
+        run: >
+          dotnet test tests/Licitaciones.UnitTests --no-build -c Release --verbosity normal
+          --collect:"XPlat Code Coverage" --settings .runsettings --results-directory TestResults
+
+      - name: Ejecutar pruebas de integración
+        run: >
+          dotnet test tests/Licitaciones.IntegrationTests --no-build -c Release --verbosity normal
+          --collect:"XPlat Code Coverage" --settings .runsettings --results-directory TestResults
+
+      - name: Instalar el navegador de las pruebas funcionales
+        run: pwsh tests/Licitaciones.FunctionalTests/bin/Release/net9.0/playwright.ps1 install chromium --with-deps
+
+      - name: Ejecutar pruebas funcionales
+        run: >
+          dotnet test tests/Licitaciones.FunctionalTests --no-build -c Release --verbosity normal
+          --collect:"XPlat Code Coverage" --settings .runsettings --results-directory TestResults
+
+      - name: Publicar el informe de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: TestResults/**/coverage.cobertura.xml
+
+  imagenes:
+    name: Construcción de las imágenes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Se construyen las dos imágenes para que un fallo en el Dockerfile se vea aquí y no
+      # al desplegar.
+      - name: Construir la imagen de la aplicación web
+        run: docker build -t licitaciones-web:ci --build-arg PROYECTO=Licitaciones.Web .
+
+      - name: Construir la imagen de la API
+        run: docker build -t licitaciones-api:ci --build-arg PROYECTO=Licitaciones.Api .

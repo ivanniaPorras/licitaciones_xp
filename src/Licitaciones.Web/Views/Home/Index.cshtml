@@ -1,14 +1,229 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuracion
 @{
     ViewData["Title"] = "Inicio";
+    var urlDocumentacion = Configuracion["Api:UrlDocumentacion"];
 }
 
-<div class="text-center">
-    <h1 class="display-5">Sistema de Gestión de Licitaciones</h1>
-    <p class="lead">
-        Administración de licitaciones, proveedores, ofertas económicas, niveles de
-        aprobación y tipos de cambio, con el colón costarricense como moneda oficial.
+<div class="row align-items-center mb-4">
+    <div class="col-lg-8">
+        <h1 class="display-6">Sistema de Gestión de Licitaciones</h1>
+        <p class="lead">
+            Administra procesos de compra de principio a fin: se publica una licitación con
+            su presupuesto y su fecha límite, los proveedores registrados presentan sus
+            ofertas económicas, y al cerrarse el proceso el sistema determina cuál es la
+            mejor oferta, qué tan conveniente resulta y a quién le corresponde autorizarla.
+        </p>
+        <p>
+            La moneda oficial y fuente de verdad es el <strong>colón costarricense</strong>.
+            Los montos en dólares son una lectura calculada que nunca modifica lo guardado.
+        </p>
+    </div>
+    <div class="col-lg-4">
+        <div class="card tarjeta-seccion">
+            <div class="card-body">
+                <h2 class="h6 card-title">Para empezar</h2>
+                <ol class="mb-0 ps-3">
+                    <li>Registre los <a asp-controller="Proveedores" asp-action="Index">proveedores</a>.</li>
+                    <li>Cree una <a asp-controller="Licitaciones" asp-action="Index">licitación</a> y publíquela.</li>
+                    <li>Registre las <a asp-controller="Ofertas" asp-action="Index">ofertas</a> recibidas.</li>
+                    <li>Consulte la mejor oferta y su aprobador.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="mb-4">
+    <h2 class="h4">El ciclo de vida de una licitación</h2>
+    <p>
+        Una licitación siempre nace en <strong>Borrador</strong>, donde se prepara sin que
+        nadie pueda ofertar todavía. Al <strong>publicarla</strong> empieza el período de
+        recepción de ofertas, y para eso necesita tener sus datos completos, un presupuesto
+        mayor que cero y una fecha de cierre que aún no haya pasado. Una vez
+        <strong>Cerrada</strong>, el proceso es definitivo: no se reabre ni admite más
+        ofertas.
     </p>
     <p>
-        La página inicial explicativa y la navegación completa se construyen en la entrega 10.
+        Desde Borrador también se puede cerrar directamente, registrando el motivo de la
+        cancelación. Las transiciones que no aparecen en el diagrama sencillamente no se
+        ofrecen, y si se intentan por la interfaz de programación se rechazan.
     </p>
-</div>
+
+    <figure class="border rounded p-3">
+        <img src="~/img/flujo-licitacion.svg" alt="Diagrama del flujo de estados de una licitación: de Borrador a Publicada, de Publicada a Cerrada, y de Borrador a Cerrada al cancelarla."
+             class="diagrama-flujo" />
+        <figcaption class="text-muted small mt-2">
+            Borrador → Publicada → Cerrada, con la cancelación directa desde Borrador.
+        </figcaption>
+    </figure>
+
+    <div class="alert alert-secondary" role="note">
+        <strong>El cierre no depende de que alguien lo pulse.</strong> En cuanto se alcanza
+        la fecha de cierre, la licitación deja de admitir ofertas aunque su estado siga
+        marcado como Publicada. El momento exacto de la fecha ya cuenta como cerrado.
+    </div>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Las ofertas y sus reglas</h2>
+    <p>
+        Una oferta es la propuesta económica que presenta un proveedor para una licitación
+        concreta, y queda registrada con la fecha y hora exactas en que se recibió. Para
+        aceptarse tiene que cumplir cuatro condiciones:
+    </p>
+    <ul>
+        <li>La licitación debe estar publicada, no en Borrador.</li>
+        <li>El período de recepción debe seguir abierto.</li>
+        <li>El monto no puede superar el presupuesto estimado.</li>
+        <li>Ese proveedor no puede haber ofertado ya en la misma licitación.</li>
+    </ul>
+    <p>
+        Las ofertas de una licitación cerrada no se editan ni se eliminan: son la evidencia
+        de lo que ocurrió durante el proceso.
+    </p>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Cómo se decide la mejor oferta</h2>
+    <p>
+        La mejor oferta es la de <strong>menor monto</strong> entre las válidas. Si dos
+        empatan en monto, gana la que se registró primero. Junto a ella el sistema muestra
+        el ahorro respecto del presupuesto y lo resume en una etiqueta:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <caption>Clasificación del ahorro obtenido</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Ahorro respecto del presupuesto</th>
+                    <th scope="col">Etiqueta</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>10 % o más</td>
+                    <td><span class="badge bg-success">Oferta conveniente</span></td>
+                </tr>
+                <tr>
+                    <td>Más de 0 % y menos de 10 %</td>
+                    <td><span class="badge bg-primary">Oferta aceptable</span></td>
+                </tr>
+                <tr>
+                    <td>La oferta iguala el presupuesto</td>
+                    <td><span class="badge bg-secondary">Oferta válida sin ahorro</span></td>
+                </tr>
+                <tr>
+                    <td>No hay ofertas válidas</td>
+                    <td><span class="badge bg-warning text-dark">Sin ofertas válidas</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Quién autoriza cada monto</h2>
+    <p>
+        El aprobador no está escrito en el programa: sale de la tabla de
+        <a asp-controller="NivelesAprobacion" asp-action="Index">niveles de aprobación</a>,
+        donde cada rango de montos tiene asignada su instancia. Ajustar la política de
+        autorización es editar esas filas, no pedir un cambio en el sistema. Los rangos no
+        pueden traslaparse y solo uno puede quedar sin límite superior.
+    </p>
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Colones y dólares</h2>
+    <p>
+        Todo se guarda en colones. El
+        <a asp-controller="TiposCambio" asp-action="Index">tipo de cambio</a> lo administra
+        una persona de la organización y el sistema nunca consulta un servicio externo, así
+        que funciona sin conexión a Internet. Solo una tasa está vigente a la vez.
+    </p>
+    <p>
+        Con el alternador de la barra superior se cambia entre <strong>₡ Colones</strong> y
+        <strong>$ Dólares</strong>. Al mostrarlos en dólares aparece siempre la tasa que se
+        usó y desde cuándo rige, para que ninguna cifra quede sin explicación.
+    </p>
+</section>
+
+<section>
+    <h2 class="h4">Todas las secciones</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        <div class="col">
+            <div class="card tarjeta-seccion">
+                <div class="card-body">
+                    <h3 class="h6 card-title">
+                        <a asp-controller="Licitaciones" asp-action="Index">Licitaciones</a>
+                    </h3>
+                    <p class="card-text small text-muted">
+                        Crear procesos, publicarlos, cerrarlos y consultar su mejor oferta.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card tarjeta-seccion">
+                <div class="card-body">
+                    <h3 class="h6 card-title">
+                        <a asp-controller="Proveedores" asp-action="Index">Proveedores</a>
+                    </h3>
+                    <p class="card-text small text-muted">
+                        Mantener el catálogo de empresas y ver su historial de ofertas.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card tarjeta-seccion">
+                <div class="card-body">
+                    <h3 class="h6 card-title">
+                        <a asp-controller="Ofertas" asp-action="Index">Ofertas</a>
+                    </h3>
+                    <p class="card-text small text-muted">
+                        Registrar propuestas económicas y filtrarlas por licitación o proveedor.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card tarjeta-seccion">
+                <div class="card-body">
+                    <h3 class="h6 card-title">
+                        <a asp-controller="NivelesAprobacion" asp-action="Index">Niveles de aprobación</a>
+                    </h3>
+                    <p class="card-text small text-muted">
+                        Definir los rangos de monto y la instancia que autoriza cada uno.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card tarjeta-seccion">
+                <div class="card-body">
+                    <h3 class="h6 card-title">
+                        <a asp-controller="TiposCambio" asp-action="Index">Tipo de cambio</a>
+                    </h3>
+                    <p class="card-text small text-muted">
+                        Registrar tasas y elegir cuál rige la lectura en dólares.
+                    </p>
+                </div>
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(urlDocumentacion))
+        {
+            <div class="col">
+                <div class="card tarjeta-seccion">
+                    <div class="card-body">
+                        <h3 class="h6 card-title">
+                            <a href="@urlDocumentacion" target="_blank" rel="noopener">Documentación de la API</a>
+                        </h3>
+                        <p class="card-text small text-muted">
+                            Probar las operaciones bajo <code>api/v1</code> desde el navegador.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

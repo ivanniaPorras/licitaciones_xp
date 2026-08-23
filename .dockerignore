@@ -1,0 +1,29 @@
+# Todo lo que no hace falta para compilar dentro de la imagen. Cuanto menos entre en el
+# contexto de construcción, más rápido se construye y menos riesgo hay de arrastrar un
+# archivo con credenciales.
+
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+**/TestResults/
+**/coverage/
+**/playwright-report/
+**/.playwright/
+**/node_modules/
+
+.git/
+.github/
+.vscode/
+
+# Credenciales reales. Solo se versiona la plantilla .env.example.
+.env
+**/appsettings.Development.json
+**/appsettings.*.Local.json
+**/secrets.json
+
+docs/
+plan-licitaciones/
+CLAUDE.md
+LICENSE
+*.md

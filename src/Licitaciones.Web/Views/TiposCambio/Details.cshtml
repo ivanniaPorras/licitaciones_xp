@@ -1,0 +1,38 @@
+@using Licitaciones.Application.Moneda
+@model TipoCambioResponse
+@{
+    ViewData["Title"] = $"Tipo de cambio del {Model.FechaVigencia.UtcDateTime:dd/MM/yyyy}";
+}
+
+<h1>Tipo de cambio</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Colones por dólar</dt>
+    <dd class="col-sm-9">@Model.CRCporUSD.ToString("N4")</dd>
+
+    <dt class="col-sm-3">Vigente desde</dt>
+    <dd class="col-sm-9">@Model.FechaVigencia.UtcDateTime.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">
+        @if (Model.Activo)
+        {
+            <span class="badge bg-success">En uso</span>
+            <span class="text-muted">Es la tasa con la que se leen los montos en dólares.</span>
+        }
+        else
+        {
+            <span class="badge bg-secondary">Fuera de uso</span>
+        }
+    </dd>
+
+    <dt class="col-sm-3">Registrado</dt>
+    <dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+
+    <dt class="col-sm-3">Última modificación</dt>
+    <dd class="col-sm-9">@Model.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+</dl>
+
+<a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
+<a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@Model.Id">Eliminar</a>
+<a class="btn btn-link" asp-action="Index">Volver</a>

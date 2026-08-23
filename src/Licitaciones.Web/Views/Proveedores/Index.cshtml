@@ -1,9 +1,9 @@
 @using Licitaciones.Application.Comun
 @using Licitaciones.Application.Proveedores
+@using Licitaciones.Web.Vistas
 @model PagedResponse<ProveedorResponse>
 @{
     ViewData["Title"] = "Proveedores";
-    var orden = Context.Request.Query["orden"].ToString();
 }
 
 <h1>Proveedores</h1>
@@ -25,7 +25,7 @@
 
 @if (Model is null || Model.Elementos.Count == 0)
 {
-    <p class="text-muted">No hay proveedores registrados.</p>
+    <p class="text-muted">No hay proveedores que coincidan con la búsqueda.</p>
 }
 else
 {
@@ -34,17 +34,8 @@ else
             <caption>@Model.Total proveedores registrados</caption>
             <thead>
                 <tr>
-                    <th scope="col">
-                        <a asp-action="Index"
-                           asp-route-orden="@(orden == "nombre:asc" ? "nombre:desc" : "nombre:asc")"
-                           asp-route-busqueda="@Context.Request.Query["busqueda"]">
-                            Nombre @(orden.StartsWith("nombre", StringComparison.Ordinal) ? (orden.EndsWith("desc", StringComparison.Ordinal) ? "▼" : "▲") : "")
-                        </a>
-                    </th>
-                    <th scope="col">
-                        <a asp-action="Index" asp-route-orden="creacion:desc"
-                           asp-route-busqueda="@Context.Request.Query["busqueda"]">Registrado</a>
-                    </th>
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("nombre", "Nombre"))" />
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("creacion", "Registrado", "Index", "desc"))" />
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>

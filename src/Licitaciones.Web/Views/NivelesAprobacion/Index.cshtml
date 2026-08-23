@@ -1,5 +1,7 @@
 @using Licitaciones.Application.Aprobacion
-@model IReadOnlyList<NivelAprobacionResponse>
+@using Licitaciones.Application.Comun
+@using Licitaciones.Web.Vistas
+@model PagedResponse<NivelAprobacionResponse>
 @{
     ViewData["Title"] = "Niveles de aprobación";
 }
@@ -12,26 +14,39 @@
     solo uno puede quedar sin monto máximo.
 </p>
 
-<p><a class="btn btn-primary" asp-action="Create">Agregar nivel</a></p>
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-auto">
+        <label class="visually-hidden" for="busqueda">Buscar por aprobador</label>
+        <input type="search" class="form-control" id="busqueda" name="busqueda"
+               value="@Context.Request.Query["busqueda"]" placeholder="Buscar por aprobador" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+    </div>
+    <div class="col-auto ms-auto">
+        <a class="btn btn-primary" asp-action="Create">Agregar nivel</a>
+    </div>
+</form>
 
-@if (Model is null || Model.Count == 0)
+@if (Model is null || Model.Elementos.Count == 0)
 {
-    <p class="text-muted">No hay niveles de aprobación registrados.</p>
+    <p class="text-muted">No hay niveles de aprobación que coincidan con la búsqueda.</p>
 }
 else
 {
     <div class="table-responsive">
         <table class="table table-striped align-middle">
+            <caption>@Model.Total niveles de aprobación</caption>
             <thead>
                 <tr>
-                    <th scope="col">Monto mínimo</th>
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("montoMinimo", "Monto mínimo"))" />
                     <th scope="col">Monto máximo</th>
-                    <th scope="col">Aprobador</th>
+                    <partial name="_ColumnaOrdenable" model="@(new ColumnaOrdenable("aprobador", "Aprobador"))" />
                     <th scope="col">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-            @foreach (var nivel in Model)
+            @foreach (var nivel in Model.Elementos)
             {
                 <tr>
                     <td data-crc="@nivel.MontoMinimoCRC.ToString(System.Globalization.CultureInfo.InvariantCulture)">
@@ -51,6 +66,7 @@ else
                     </td>
                     <td>@nivel.Aprobador</td>
                     <td>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@nivel.Id">Ver</a>
                         <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@nivel.Id">Editar</a>
                         <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@nivel.Id">Eliminar</a>
                     </td>
@@ -59,4 +75,6 @@ else
             </tbody>
         </table>
     </div>
+
+    <partial name="_Paginacion" model="@((Model.Pagina, Model.TotalPaginas, "Index"))" />
 }

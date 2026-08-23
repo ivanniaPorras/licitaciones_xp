@@ -1,0 +1,18 @@
+@using System.Globalization
+@using Licitaciones.Application.Moneda
+@model TipoCambioResponse
+
+@if (Model is not null)
+{
+    <div class="d-flex align-items-center gap-2" id="alternador-moneda"
+         data-tasa="@Model.CRCporUSD.ToString(CultureInfo.InvariantCulture)"
+         data-vigencia="@Model.FechaVigencia.UtcDateTime.ToString("dd/MM/yyyy")">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Moneda en la que se muestran los montos">
+            <button type="button" class="btn btn-outline-secondary active" data-moneda="CRC"
+                    aria-pressed="true">₡ Colones</button>
+            <button type="button" class="btn btn-outline-secondary" data-moneda="USD"
+                    aria-pressed="false">$ Dólares</button>
+        </div>
+        <small class="text-muted" id="alternador-moneda-tasa" aria-live="polite"></small>
+    </div>
+}

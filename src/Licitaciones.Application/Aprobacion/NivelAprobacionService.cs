@@ -48,13 +48,25 @@ public sealed class NivelAprobacionService : INivelAprobacionService
     }
 
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyList<NivelAprobacionResponse>>> ListarAsync(
+    public async Task<Result<PagedResponse<NivelAprobacionResponse>>> ListarAsync(
+        ConsultaNivelesAprobacion consulta,
         CancellationToken cancelacion = default)
     {
-        var niveles = await _niveles.ObtenerTodosAsync(cancelacion);
+        ArgumentNullException.ThrowIfNull(consulta);
 
-        return Result<IReadOnlyList<NivelAprobacionResponse>>.Correcto(
-            [.. niveles.Select(AResponse)]);
+        var (elementos, total) = await _niveles.ListarAsync(
+            consulta.Busqueda,
+            consulta.Orden,
+            consulta.Pagina,
+            consulta.Tamano,
+            cancelacion);
+
+        return Result<PagedResponse<NivelAprobacionResponse>>.Correcto(
+            new PagedResponse<NivelAprobacionResponse>(
+                [.. elementos.Select(AResponse)],
+                consulta.Pagina,
+                consulta.Tamano,
+                total));
     }
 
     /// <inheritdoc />

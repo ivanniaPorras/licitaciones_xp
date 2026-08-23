@@ -55,16 +55,16 @@ Definida por el cliente:
 | HU-023 | Consultar la mejor oferta con su clasificación | Alta | 3 | 3 | Terminada |
 | HU-024 | Administrar niveles de aprobación sin traslape | Alta | 5 | 3 | Terminada |
 | HU-025 | Conocer quién debe aprobar un monto | Alta | 3 | 3 | Terminada |
-| HU-026 | Administrar el tipo de cambio vigente | Alta | 5 | 3 | Pendiente |
-| HU-027 | Ver los montos en dólares | Alta | 3 | 3 | Pendiente |
-| HU-028 | Página inicial explicativa y navegación | Alta | 5 | 4 | Pendiente |
-| HU-029 | Modo claro y modo oscuro | Media | 3 | 4 | Pendiente |
-| HU-030 | Listados con paginación, filtrado y ordenamiento | Media | 5 | 4 | Pendiente |
-| HU-031 | API REST versionada y documentada | Alta | 5 | 4 | Pendiente |
-| HU-032 | Errores de la API comprensibles y seguros | Alta | 3 | 4 | Pendiente |
-| HU-033 | Ejecutar el sistema con Docker Compose | Alta | 3 | 4 | Pendiente |
-| HU-034 | Desplegar el sistema en Kubernetes | Alta | 5 | 4 | Pendiente |
-| HU-035 | Verificar el flujo completo desde el navegador | Alta | 5 | 4 | Pendiente |
+| HU-026 | Administrar el tipo de cambio vigente | Alta | 5 | 3 | Terminada |
+| HU-027 | Ver los montos en dólares | Alta | 3 | 3 | Terminada |
+| HU-028 | Página inicial explicativa y navegación | Alta | 5 | 4 | Terminada |
+| HU-029 | Modo claro y modo oscuro | Media | 3 | 4 | Terminada |
+| HU-030 | Listados con paginación, filtrado y ordenamiento | Media | 5 | 4 | Terminada |
+| HU-031 | API REST versionada y documentada | Alta | 5 | 4 | Terminada |
+| HU-032 | Errores de la API comprensibles y seguros | Alta | 3 | 4 | Terminada |
+| HU-033 | Ejecutar el sistema con Docker Compose | Alta | 3 | 4 | Terminada |
+| HU-034 | Desplegar el sistema en Kubernetes | Alta | 5 | 4 | Terminada |
+| HU-035 | Verificar el flujo completo desde el navegador | Alta | 5 | 4 | Terminada |
 
 **Total:** 127 puntos distribuidos en cuatro iteraciones — 29, 29, 35 y 34 respectivamente.
 El desbalance de las dos últimas está identificado como riesgo en
@@ -722,8 +722,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    tasas.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `TipoCambioServiceTests` (17 casos), `TipoCambioTests` (10 casos), `TiposCambioEndpointsTests` (11 casos)
+- Commits: `c8bcadb` (rojo), `baeae97` (verde), `59293a7` (API), `82ae104` (interfaz)
 - Documentación: [modulos/tipo-cambio.md](modulos/tipo-cambio.md)
 
 ---
@@ -746,8 +746,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 4. Los colones se presentan con el formato de Costa Rica, por ejemplo `₡1.250.000,00`.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ConversionMonedaServiceTests` (9 casos), `TiposCambioEndpointsTests.Conversion_*`
+- Commits: `ac3d6ac` (rojo), `551b1ae` (verde), `59293a7` (API), `dd4b60b` (alternador)
 - Documentación: [modulos/tipo-cambio.md](modulos/tipo-cambio.md)
 
 ---
@@ -775,8 +775,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    correctamente sin acceso a Internet.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: verificación manual sobre la aplicación en marcha
+- Commits: `8c74893` (página inicial), `6fefb73` (enlace a la documentación)
 - Documentación: [modulos/interfaz-web.md](modulos/interfaz-web.md)
 
 ---
@@ -798,8 +798,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 5. El contraste del texto es suficiente en ambos temas.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: verificación manual sobre la aplicación en marcha
+- Commits: `78a3386`
 - Documentación: [modulos/interfaz-web.md](modulos/interfaz-web.md)
 
 ---
@@ -822,9 +822,9 @@ El desbalance de las dos últimas está identificado como riesgo en
 5. Cuando no hay resultados se muestra un mensaje informativo, no una tabla vacía.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
-- Documentación: [modulos/interfaz-web.md](modulos/interfaz-web.md)
+- Pruebas: `TipoCambioServiceTests.Listar_*`, `NivelAprobacionServiceTests.Listar_*`, `ContratoApiTests`
+- Commits: `b84e44f` (rojo), `3ca26ab` (verde)
+- Documentación: [modulos/interfaz-web.md](modulos/interfaz-web.md), [api.md](api.md)
 
 ---
 
@@ -850,8 +850,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    completo.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ContratoApiTests` (17 casos)
+- Commits: `8d4d261` (pruebas), `6fefb73` (documentación interactiva), `95ef282` (colección)
 - Documentación: [api.md](api.md), [modulos/api-rest.md](modulos/api-rest.md)
 
 ---
@@ -876,8 +876,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    únicamente en el registro del servidor con el mismo identificador de correlación.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `ContratoApiTests.RutaInexistente_*`, `.VerboNoAdmitido_*`, `.CuerpoQueNoSePuedeInterpretar_*`, `.NingunErrorRevelaDetallesInternos`
+- Commits: `795a1f2` (verde), `8d4d261` (pruebas)
 - Documentación: [modulos/api-rest.md](modulos/api-rest.md)
 
 ---
@@ -903,8 +903,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    privilegios.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: verificado levantando el sistema completo, con la persistencia comprobada tras un reinicio
+- Commits: `4aaf117` (imagen), `c45d28c` (salud y migraciones), `b7765d7` (compose)
 - Documentación: [docker.md](docker.md)
 
 ---
@@ -928,8 +928,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 5. Al eliminar el pod de la base de datos, este se recrea y los datos siguen ahí.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: manifiestos validados; el despliegue sobre clúster queda anotado como salvedad
+- Commits: `c45d28c` (salud y migraciones), `b7765d7` (manifiestos)
 - Documentación: [kubernetes.md](kubernetes.md)
 
 ---
@@ -957,6 +957,6 @@ El desbalance de las dos últimas está identificado como riesgo en
    proyecto completo.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `RecorridoCompletoTests`, `CicloDeVidaDeCadaModuloTests` (7 casos en navegador real)
+- Commits: `a2b298c` (recorrido), `c81c94e` (ciclo de los cinco módulos)
 - Documentación: [pruebas.md](pruebas.md)

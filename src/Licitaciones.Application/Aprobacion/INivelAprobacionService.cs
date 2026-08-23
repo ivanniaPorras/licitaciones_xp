@@ -12,9 +12,11 @@ public interface INivelAprobacionService
         decimal montoCRC,
         CancellationToken cancelacion = default);
 
-    /// <summary>Lista los niveles ordenados por su monto mínimo.</summary>
+    /// <summary>Lista los niveles con paginación, filtrado y ordenamiento.</summary>
+    /// <param name="consulta">Filtros del listado.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
-    Task<Result<IReadOnlyList<NivelAprobacionResponse>>> ListarAsync(
+    Task<Result<PagedResponse<NivelAprobacionResponse>>> ListarAsync(
+        ConsultaNivelesAprobacion consulta,
         CancellationToken cancelacion = default);
 
     /// <summary>Consulta un nivel por su identificador.</summary>

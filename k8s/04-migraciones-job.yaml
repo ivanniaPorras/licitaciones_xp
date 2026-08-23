@@ -1,0 +1,65 @@
+# Las migraciones se aplican una sola vez, no en cada réplica.
+#
+# Un Job corre hasta terminar y no se repite. Si las migraciones se hicieran al arrancar la
+# aplicación, cada réplica intentaría migrar a la vez sobre la misma base. El contenedor de
+# inicialización espera a que PostgreSQL acepte conexiones antes de intentarlo.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: licitaciones-migraciones
+  namespace: licitaciones
+  labels:
+    app.kubernetes.io/name: migraciones
+    app.kubernetes.io/part-of: licitaciones
+spec:
+  backoffLimit: 3
+  # El Job se conserva un rato tras terminar para poder leer su registro, y luego se limpia.
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: migraciones
+        app.kubernetes.io/part-of: licitaciones
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: esperar-postgres
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER"; do
+                echo "Esperando a PostgreSQL"
+                sleep 2
+              done
+          envFrom:
+            - configMapRef:
+                name: licitaciones-config
+            - secretRef:
+                name: licitaciones-secret
+      containers:
+        - name: migraciones
+          image: licitaciones-api:1.0.0
+          imagePullPolicy: IfNotPresent
+          args: ["--aplicar-migraciones"]
+          envFrom:
+            - configMapRef:
+                name: licitaciones-config
+            - secretRef:
+                name: licitaciones-secret
+          env:
+            - name: ConnectionStrings__Default
+              value: "Host=$(POSTGRES_HOST);Port=$(POSTGRES_PORT);Database=$(POSTGRES_DB);Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD)"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

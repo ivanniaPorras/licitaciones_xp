@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Licitaciones.Api.Comun;
 using Licitaciones.Application.Aprobacion;
+using Licitaciones.Application.Comun;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Licitaciones.Api.Controllers;
@@ -20,14 +21,16 @@ public sealed class NivelesAprobacionController : ControladorApiBase
     /// <param name="niveles">Casos de uso de niveles de aprobación.</param>
     public NivelesAprobacionController(INivelAprobacionService niveles) => _niveles = niveles;
 
-    /// <summary>Lista los niveles ordenados por su monto mínimo.</summary>
+    /// <summary>Lista los niveles con paginación, filtrado y ordenamiento.</summary>
+    /// <param name="consulta">Página, tamaño, orden y búsqueda.</param>
     /// <param name="cancelacion">Testigo de cancelación.</param>
     [HttpGet]
-    [ProducesResponseType<IReadOnlyList<NivelAprobacionResponse>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<NivelAprobacionResponse>>> Listar(
+    [ProducesResponseType<PagedResponse<NivelAprobacionResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<NivelAprobacionResponse>>> Listar(
+        [FromQuery] ConsultaNivelesAprobacion consulta,
         CancellationToken cancelacion)
     {
-        var resultado = await _niveles.ListarAsync(cancelacion);
+        var resultado = await _niveles.ListarAsync(consulta, cancelacion);
 
         return Ok(resultado.Valor);
     }
