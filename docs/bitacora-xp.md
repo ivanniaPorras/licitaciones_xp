@@ -176,6 +176,31 @@ código propio.
 Quedan pendientes de la iteración 4 las tres historias de despliegue y verificación de
 extremo a extremo: HU-033, HU-034 y HU-035.
 
+**Entregas 12 a 14 — Despliegue y verificación de extremo a extremo (HU-033 a HU-035, terminadas).**
+
+Se cerró el proyecto. Quedaron la imagen multietapa que corre sin privilegios, el archivo
+de Compose que levanta base, migraciones, web y API con sus comprobaciones de salud, los
+manifiestos de Kubernetes con almacenamiento persistente y las tres sondas, y las pruebas
+de navegador que recorren el sistema completo.
+
+Las migraciones dejaron de ser un efecto del arranque y pasaron a ser un paso propio,
+invocado con `--aplicar-migraciones`. Es la misma imagen en los dos entornos: un servicio
+de Compose y un Job de Kubernetes.
+
+| Comando | Resultado |
+|---|---|
+| `dotnet build -c Release` | 0 errores, 0 advertencias |
+| `dotnet format --verify-no-changes --severity warn` | sin diferencias |
+| `dotnet test` unitarias | 244 superadas |
+| `dotnet test` integración | 103 superadas |
+| `dotnet test` funcionales | 7 superadas |
+| Cobertura de `Domain` | 98,6 % |
+| Cobertura de `Application` | 88,2 % |
+| Cobertura del proyecto completo | 81,2 % |
+| `docker compose up --build` | los tres servicios en `healthy` |
+
+Las 35 historias quedan terminadas.
+
 ### Decisiones tomadas
 
 | Decisión | Razón |
@@ -191,6 +216,10 @@ extremo a extremo: HU-033, HU-034 y HU-035.
 | La búsqueda del listado de tipos de cambio filtra por año de vigencia y no por texto libre. | El listado solo contiene números y fechas. Buscar el año es la única búsqueda que alguien escribiría de verdad, y se traduce a una consulta exacta en lugar de a una conversión de números a texto. |
 | El guion del tema se carga en el encabezado y de forma síncrona. | Cargado al final de la página, el navegador alcanza a pintar el tema por omisión y la corrección se ve como un parpadeo. |
 | Las hojas de estilo propias no fijan ningún color literal. | Con un valor literal, el modo oscuro hereda los tonos del claro y el contraste del texto deja de ser suficiente. |
+| Las migraciones se aplican en un paso propio y no al arrancar la aplicación. | Con varias réplicas, todas intentarían migrar a la vez sobre la misma base. Es la misma imagen invocada con un argumento, así que sirve igual en Compose y en Kubernetes. |
+| La sonda de vitalidad no consulta la base de datos. | Reiniciar un contenedor sano porque la base va lenta produce un ciclo de reinicios que no arregla nada. Quien decide si un pod recibe tráfico es la sonda de disponibilidad. |
+| Las pruebas de navegador publican la aplicación y la ejecutan como proceso aparte. | Un navegador necesita un servidor que escuche en un puerto real, y desde la carpeta de compilación los archivos estáticos se sirven vacíos porque `wwwroot` solo se coloca en su sitio al publicar. |
+| El monto en dólares se arma anteponiendo el símbolo a mano. | El formato de moneda del navegador escribe unas veces `US$` y otras `USD` según sus datos regionales, y el mismo monto se leería distinto en cada máquina. |
 
 ### Velocidad
 
@@ -279,6 +308,19 @@ extremo a extremo: HU-033, HU-034 y HU-035.
   licitación y el nombre del proveedor, de modo que el filtro entra antes del conteo y de
   la paginación. Los otros cuatro listados ya lo hacían bien; este se había quedado atrás
   porque su búsqueda cruza dos tablas.
+
+- **Entrega 13** — Al escribir el recorrido en navegador, el formulario de licitaciones
+  rechazaba un presupuesto perfectamente válido. La aplicación se presenta con la cultura
+  de Costa Rica, donde el punto separa los miles, pero un campo `input type="number"`
+  **siempre** envía el valor en formato invariante. Así, `10000000.00` llegaba al servidor
+  y `es-CR` no lo podía interpretar, porque su último grupo tiene dos dígitos en lugar de
+  tres: el monto se enlazaba como cero y el formulario rechazaba el dato bien escrito.
+
+  El defecto llevaba ahí desde la entrega 5 y **ninguna prueba anterior podía verlo**: las
+  de la API envían JSON, que se interpreta siempre en formato invariante. Hizo falta un
+  navegador enviando un formulario de verdad. Se corrigió con `EnlazadorDecimalInvariante`,
+  que prueba primero la cultura invariante y después la del sitio. Es el argumento más
+  claro que dio el proyecto a favor de HU-035.
 
 ### Salvedad sobre el ciclo en la entrega 4
 

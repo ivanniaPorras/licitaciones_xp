@@ -62,9 +62,9 @@ Definida por el cliente:
 | HU-030 | Listados con paginación, filtrado y ordenamiento | Media | 5 | 4 | Terminada |
 | HU-031 | API REST versionada y documentada | Alta | 5 | 4 | Terminada |
 | HU-032 | Errores de la API comprensibles y seguros | Alta | 3 | 4 | Terminada |
-| HU-033 | Ejecutar el sistema con Docker Compose | Alta | 3 | 4 | Pendiente |
-| HU-034 | Desplegar el sistema en Kubernetes | Alta | 5 | 4 | Pendiente |
-| HU-035 | Verificar el flujo completo desde el navegador | Alta | 5 | 4 | Pendiente |
+| HU-033 | Ejecutar el sistema con Docker Compose | Alta | 3 | 4 | Terminada |
+| HU-034 | Desplegar el sistema en Kubernetes | Alta | 5 | 4 | Terminada |
+| HU-035 | Verificar el flujo completo desde el navegador | Alta | 5 | 4 | Terminada |
 
 **Total:** 127 puntos distribuidos en cuatro iteraciones — 29, 29, 35 y 34 respectivamente.
 El desbalance de las dos últimas está identificado como riesgo en
@@ -903,8 +903,8 @@ El desbalance de las dos últimas está identificado como riesgo en
    privilegios.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: verificado levantando el sistema completo, con la persistencia comprobada tras un reinicio
+- Commits: `4aaf117` (imagen), `c45d28c` (salud y migraciones), `b7765d7` (compose)
 - Documentación: [docker.md](docker.md)
 
 ---
@@ -928,8 +928,8 @@ El desbalance de las dos últimas está identificado como riesgo en
 5. Al eliminar el pod de la base de datos, este se recrea y los datos siguen ahí.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: manifiestos validados; el despliegue sobre clúster queda anotado como salvedad
+- Commits: `c45d28c` (salud y migraciones), `b7765d7` (manifiestos)
 - Documentación: [kubernetes.md](kubernetes.md)
 
 ---
@@ -957,6 +957,6 @@ El desbalance de las dos últimas está identificado como riesgo en
    proyecto completo.
 
 **Trazabilidad**
-- Pruebas: pendiente
-- Commits: pendiente
+- Pruebas: `RecorridoCompletoTests`, `CicloDeVidaDeCadaModuloTests` (7 casos en navegador real)
+- Commits: `a2b298c` (recorrido), `c81c94e` (ciclo de los cinco módulos)
 - Documentación: [pruebas.md](pruebas.md)
