@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Configuración de la medición de cobertura.
+
+  Se excluye lo que no es código con reglas propias: las migraciones y el modelo
+  instantáneo, que los genera Entity Framework Core; los puntos de entrada; y los propios
+  proyectos de prueba. Contarlos inflaría el porcentaje sin decir nada sobre si las reglas
+  de negocio están verificadas.
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura,opencover</Format>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <ExcludeByFile>**/Migraciones/**/*.cs,**/*.Designer.cs,**/Program.cs</ExcludeByFile>
+          <Exclude>[*]Licitaciones.*Tests*</Exclude>
+          <SkipAutoProps>true</SkipAutoProps>
+          <UseSourceLink>false</UseSourceLink>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+
+  <RunConfiguration>
+    <!-- Las pruebas de integración y las funcionales comparten contenedores y puertos. -->
+    <MaxCpuCount>1</MaxCpuCount>
+  </RunConfiguration>
+</RunSettings>

@@ -3,6 +3,7 @@ using Licitaciones.Application;
 using Licitaciones.Infrastructure;
 using Licitaciones.Infrastructure.Persistencia;
 using Licitaciones.Infrastructure.Salud;
+using Licitaciones.Web.Vistas;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Localization;
 
@@ -14,7 +15,10 @@ var cadenaConexion = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException(
         "Falta la cadena de conexión. Defina la variable de entorno ConnectionStrings__Default.");
 
-builder.Services.AddControllersWithViews();
+// Los campos numéricos del navegador envían siempre el punto como separador decimal,
+// aunque la aplicación se muestre con la cultura de Costa Rica.
+builder.Services.AddControllersWithViews(opciones =>
+    opciones.ModelBinderProviders.Insert(0, new ProveedorEnlazadorDecimalInvariante()));
 builder.Services.AgregarAplicacion();
 builder.Services.AgregarInfraestructura(cadenaConexion);
 builder.Services.AgregarComprobacionesSalud();

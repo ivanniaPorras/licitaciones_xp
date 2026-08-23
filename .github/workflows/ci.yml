@@ -40,5 +40,21 @@ jobs:
             exit 1
           fi
 
-      - name: Ejecutar pruebas
-        run: dotnet test --no-build -c Release --verbosity normal
+      - name: Ejecutar pruebas unitarias y de integración
+        run: |
+          dotnet test tests/Licitaciones.UnitTests --no-build -c Release --verbosity normal \n            --collect:"XPlat Code Coverage" --settings .runsettings --results-directory TestResults
+          dotnet test tests/Licitaciones.IntegrationTests --no-build -c Release --verbosity normal \n            --collect:"XPlat Code Coverage" --settings .runsettings --results-directory TestResults
+
+      - name: Instalar el navegador de las pruebas funcionales
+        run: pwsh tests/Licitaciones.FunctionalTests/bin/Release/net9.0/playwright.ps1 install chromium --with-deps
+
+      - name: Ejecutar pruebas funcionales
+        run: |
+          dotnet test tests/Licitaciones.FunctionalTests --no-build -c Release --verbosity normal \n            --collect:"XPlat Code Coverage" --settings .runsettings --results-directory TestResults
+
+      - name: Publicar el informe de cobertura
+        if: always()
+        uses: actions/upload-artifact
+        with:
+          name: cobertura
+          path: TestResults/**/coverage.cobertura.xml

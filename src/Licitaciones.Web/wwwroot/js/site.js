@@ -21,9 +21,10 @@
     var leyenda = document.getElementById('alternador-moneda-tasa');
     var botones = alternador.querySelectorAll('[data-moneda]');
 
+    // Se agrupa como los colones y el símbolo se antepone a mano. El formato de moneda
+    // del navegador escribe unas veces 'US$' y otras 'USD' según sus datos de
+    // configuración regional, y el monto se leería distinto en cada máquina.
     var formatoUSD = new Intl.NumberFormat('es-CR', {
-        style: 'currency',
-        currency: 'USD',
         minimumFractionDigits: DECIMALES,
         maximumFractionDigits: DECIMALES
     });
@@ -47,7 +48,7 @@
             }
 
             if (moneda === 'USD') {
-                elemento.textContent = formatoUSD.format(
+                elemento.textContent = '$' + formatoUSD.format(
                     convertirADolares(parseFloat(elemento.getAttribute('data-crc'))));
             } else {
                 elemento.textContent = elemento.getAttribute('data-crc-texto');
