@@ -79,6 +79,18 @@ Al terminar:
 | API | http://localhost:30081 |
 | Documentación interactiva | http://localhost:30081/swagger |
 
+> **Si el clúster es el de Docker Desktop**, esas direcciones no responden. Su Kubernetes
+> usa `kind`, que no publica los puertos de nodo en el equipo anfitrión. En ese caso se
+> abre un túnel, dejando cada comando corriendo en su propia terminal:
+>
+> ```bash
+> kubectl port-forward --namespace licitaciones service/licitaciones-web 8080:80
+> kubectl port-forward --namespace licitaciones service/licitaciones-api 8081:80
+> ```
+>
+> Y se accede entonces por `http://localhost:8080` y `http://localhost:8081`. En Minikube
+> los puertos de nodo sí funcionan y el túnel no hace falta.
+
 En minikube, `minikube service licitaciones-web --namespace licitaciones` abre la dirección
 que corresponda.
 
@@ -127,8 +139,19 @@ Su registro dice exactamente qué se aplicó:
 kubectl logs --namespace licitaciones job/licitaciones-migraciones
 ```
 
+![Registro del Job de migraciones](assets/k8s-migraciones-job.png)
+
 El Job se conserva diez minutos tras terminar —`ttlSecondsAfterFinished`— para poder leer
 ese registro, y luego se limpia solo.
+
+> Los dos mensajes de error que aparecen en el registro **no son un fallo**. Ambos son la
+> misma consulta a `__EFMigrationsHistory`, la tabla donde Entity Framework Core lleva la
+> cuenta de lo aplicado. En una base recién creada esa tabla todavía no existe, así que la
+> consulta falla; Entity Framework Core lo interpreta como «ninguna migración aplicada» y
+> continúa, pero su registrador anota igualmente toda orden SQL fallida. La prueba de que
+> todo fue bien es que el Job termina en `Complete` y el mensaje final dice que las
+> migraciones se aplicaron correctamente. La segunda vez que se ejecuta, con el historial
+> ya creado, el registro sale limpio.
 
 ## 5. Sondas y límites
 
@@ -160,8 +183,8 @@ temporales, se les monta un `emptyDir` en `/tmp`.
 ## 6. Conservación de datos tras reinicio
 
 PostgreSQL se despliega como `StatefulSet` y no como `Deployment` porque una base de datos
-tiene identidad: su volumen debe seguir siendo el mismo cuando el pod se recrea. La
-plantilla de reclamación de volumen le da un disco propio que sobrevive al pod.
+tiene identidad: su volumen debe seguir siendo el mismo cuando el pod se recrea. El
+reclamo de `postgres-pvc.yaml` le da un disco propio que sobrevive al pod.
 
 La comprobación es directa: se crea un dato, se borra el pod y se comprueba que sigue ahí.
 
@@ -181,6 +204,13 @@ curl -s "http://localhost:30081/api/v1/proveedores?busqueda=Persistencia"
 
 El identificador devuelto en el paso 3 es el mismo del paso 1: no es un registro nuevo.
 
+En la captura se ve el resultado: el listado conserva los dos proveedores y, abajo, la
+antigüedad de los pods delata lo ocurrido. `postgres-0` lleva seis segundos —acaba de
+recrearse— mientras que los de la web y la API llevan dieciséis minutos. El pod es nuevo;
+los datos, no.
+
+![Los datos sobreviven a la recreación del pod de PostgreSQL](assets/k8s-pods-tras-reinicio.png)
+
 Mientras el pod se recrea, las réplicas de la web y de la API siguen vivas pero salen del
 servicio, porque su sonda de disponibilidad falla. Vuelven solas en cuanto la base
 responde, sin que nadie tenga que reiniciarlas.
@@ -196,11 +226,19 @@ kubectl describe pod --namespace licitaciones -l app.kubernetes.io/name=web
 kubectl logs --namespace licitaciones job/licitaciones-migraciones
 ```
 
-Las capturas correspondientes se archivan en [assets/](assets/).
+### Estado del despliegue
 
-> **Salvedad honesta.** Los manifiestos se revisaron y se validaron sintácticamente, y las
-> imágenes que despliegan son exactamente las que verifica Docker Compose en
-> [docker.md](docker.md). El despliegue completo sobre un clúster real queda pendiente de
-> ejecutarse en la máquina donde se haga la demostración, y sus evidencias se adjuntarán en
-> `assets/` en ese momento. Se anota aquí en lugar de dar por probado algo que todavía no
-> se ejecutó.
+Pods, servicios y reclamo de almacenamiento tras aplicar todos los manifiestos. El Job
+figura como `Completed`, que es su estado correcto, y el reclamo aparece como `Bound`.
+
+![Pods, servicios y reclamo de almacenamiento](assets/k8s-recursos.png)
+
+### La aplicación respondiendo desde el clúster
+
+![La aplicación web servida desde Kubernetes](assets/k8s-app-funcionando.png)
+
+> **Dónde se ejecutó.** El despliegue de las capturas se hizo sobre el Kubernetes que
+> incorpora Docker Desktop, que internamente usa `kind`. Los manifiestos se validaron
+> además con `kubeconform` —once recursos, ninguno inválido—, y esa validación forma parte
+> del flujo de integración continua, de modo que un manifiesto mal formado se detecta antes
+> de llegar a un clúster.

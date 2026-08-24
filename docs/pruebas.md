@@ -193,6 +193,13 @@ dotnet test --settings .runsettings --collect:"XPlat Code Coverage" --results-di
 python scripts/verificar-cobertura.py TestResults
 ```
 
+![Comprobación de los umbrales de cobertura](assets/cobertura-resumen.png)
+
+El flujo completo, con los tres trabajos en verde —compilación y pruebas, construcción de
+las imágenes y validación de los manifiestos—:
+
+![Integración continua satisfactoria](assets/ci-run-satisfactorio.png)
+
 ## 6. Limitaciones conocidas
 
 - **Las pruebas de integración y las funcionales dependen de Docker.** En una máquina sin

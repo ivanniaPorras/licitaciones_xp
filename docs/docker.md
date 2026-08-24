@@ -49,6 +49,13 @@ Cuando termina:
 | API | http://localhost:8081 |
 | Documentación interactiva | http://localhost:8081/swagger |
 
+![Arranque de los servicios con docker compose up --build](assets/docker-up.png)
+
+Con `docker compose ps` se comprueba que los tres servicios quedaron en buen estado. El de
+migraciones aparece como terminado, que es lo correcto: hace su trabajo y sale.
+
+![Los tres servicios en estado saludable](assets/docker-compose-ps.png)
+
 Otros comandos útiles:
 
 ```bash
@@ -131,6 +138,12 @@ $ curl -s "http://localhost:8081/api/v1/proveedores?busqueda=Persistencia"
 
 El identificador es el mismo antes y después: no es un registro nuevo, es el que ya
 estaba.
+
+En la captura siguiente se ve el ciclo completo: los cinco contenedores eliminados con
+`docker compose down`, vueltos a crear con `docker compose up -d`, y el proveedor que se
+había registrado antes seguía en el listado al recargar la aplicación.
+
+![Los datos sobreviven a detener y volver a levantar los contenedores](assets/docker-persistencia.png)
 
 Para empezar de cero a propósito hay que pedirlo explícitamente con `docker compose down -v`.
 
