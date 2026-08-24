@@ -58,12 +58,25 @@ jobs:
           dotnet test tests/Licitaciones.FunctionalTests --no-build -c Release --verbosity normal
           --collect:"XPlat Code Coverage" --settings .runsettings --results-directory TestResults
 
+      - name: Generar el informe de cobertura
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:coverage -reporttypes:"TextSummary;MarkdownSummary;Html"
+          cat coverage/Summary.txt
+
+      # La cobertura es una condición de entrega, no una métrica informativa: si baja del
+      # umbral acordado el flujo falla y el cambio no se integra.
+      - name: Verificar los umbrales de cobertura
+        run: python3 scripts/verificar-cobertura.py TestResults
+
       - name: Publicar el informe de cobertura
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cobertura
-          path: TestResults/**/coverage.cobertura.xml
+          path: |
+            TestResults/**/coverage.cobertura.xml
+            coverage/
 
   imagenes:
     name: Construcción de las imágenes
@@ -78,3 +91,19 @@ jobs:
 
       - name: Construir la imagen de la API
         run: docker build -t licitaciones-api:ci --build-arg PROYECTO=Licitaciones.Api .
+
+  manifiestos:
+    name: Validación de los manifiestos de Kubernetes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Un manifiesto mal formado solo se descubre al desplegar, cuando ya es tarde.
+      # kubeconform lo valida contra los esquemas de la API sin necesidad de un clúster.
+      - name: Instalar kubeconform
+        run: |
+          curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validar los manifiestos
+        run: kubeconform -strict -summary k8s/

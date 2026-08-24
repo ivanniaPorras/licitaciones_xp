@@ -1,0 +1,27 @@
+# Reclamo de almacenamiento persistente para PostgreSQL.
+#
+# Se declara como un reclamo explícito y no mediante `volumeClaimTemplates` del
+# StatefulSet. Ambas formas son válidas; se eligió esta por dos motivos:
+#
+#   1. El enunciado exige que exista este archivo. Declararlo aquí y no usarlo dejaría un
+#      reclamo huérfano ocupando almacenamiento, que es peor que no tenerlo.
+#   2. PostgreSQL corre con una sola réplica. `volumeClaimTemplates` existe para dar un
+#      volumen distinto a cada réplica de un conjunto; con una sola, no aporta nada y sí
+#      complica el borrado, porque los reclamos generados sobreviven al StatefulSet.
+#
+# El StatefulSet lo monta por nombre en `postgres-statefulset.yaml`.
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-datos
+  namespace: licitaciones
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: licitaciones
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

@@ -1,0 +1,8 @@
+# Unifica los nombres con que cada integrante ha aparecido en el historial.
+#
+# Existe porque `git config user.name` cambió entre máquinas y una misma persona figuraba
+# con dos nombres distintos, lo que hacía parecer que el equipo tenía tres integrantes.
+# Este archivo corrige la salida de `git shortlog`, `git log` y `git blame` sin reescribir
+# el historial, que es lo que se debe evitar en una rama compartida.
+
+Ivannia Porras Miranda <ivaporrasm@gmail.com> Iva Porras <ivaporrasm@gmail.com>

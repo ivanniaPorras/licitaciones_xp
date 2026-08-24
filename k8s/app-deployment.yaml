@@ -1,22 +1,4 @@
-# Aplicación web.
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: licitaciones-web
-  namespace: licitaciones
-  labels:
-    app.kubernetes.io/name: web
-    app.kubernetes.io/part-of: licitaciones
-spec:
-  type: NodePort
-  selector:
-    app.kubernetes.io/name: web
-  ports:
-    - name: http
-      port: 80
-      targetPort: 8080
-      nodePort: 30080
+# Despliegue de la aplicación web.
 ---
 apiVersion: apps/v1
 kind: Deployment

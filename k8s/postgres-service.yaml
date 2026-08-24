@@ -1,0 +1,24 @@
+# Servicio de PostgreSQL.
+#
+# Es un servicio sin dirección propia (headless): resuelve directamente al pod, que es lo
+# que necesita un StatefulSet para tener un nombre de red estable. La aplicación se conecta
+# a `postgres.licitaciones.svc.cluster.local`.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: licitaciones
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: licitaciones
+spec:
+  # Servicio sin dirección propia: resuelve directamente al pod, que es lo que necesita un
+  # StatefulSet para tener un nombre de red estable.
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432

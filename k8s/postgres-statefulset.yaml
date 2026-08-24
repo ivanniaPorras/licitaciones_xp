@@ -3,25 +3,9 @@
 # Se despliega como StatefulSet y no como Deployment porque una base de datos tiene
 # identidad: su volumen debe seguir siendo el mismo cuando el pod se recrea. Con un
 # Deployment, cada nuevo pod podría recibir un volumen distinto.
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres
-  namespace: licitaciones
-  labels:
-    app.kubernetes.io/name: postgres
-    app.kubernetes.io/part-of: licitaciones
-spec:
-  # Servicio sin dirección propia: resuelve directamente al pod, que es lo que necesita un
-  # StatefulSet para tener un nombre de red estable.
-  clusterIP: None
-  selector:
-    app.kubernetes.io/name: postgres
-  ports:
-    - name: postgres
-      port: 5432
-      targetPort: 5432
+#
+# El volumen se toma del reclamo explícito de `postgres-pvc.yaml`. La razón de no usar
+# `volumeClaimTemplates` está explicada en ese archivo.
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -98,11 +82,7 @@ spec:
             limits:
               cpu: "1"
               memory: 1Gi
-  volumeClaimTemplates:
-    - metadata:
-        name: datos
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 2Gi
+      volumes:
+        - name: datos
+          persistentVolumeClaim:
+            claimName: postgres-datos

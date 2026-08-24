@@ -175,6 +175,24 @@ Se deja el dato tal cual en lugar de maquillarlo excluyendo el ensamblado, que s
 total sin cambiar nada de lo que está realmente verificado. Los umbrales comprometidos se
 cumplen igual, y con el margen que muestra la tabla.
 
+### La cobertura es una puerta, no un dato
+
+Los umbrales no se comprueban a ojo. El flujo de integración continua ejecuta
+[`scripts/verificar-cobertura.py`](../scripts/verificar-cobertura.py) después de las
+pruebas, y **falla el flujo** si `Domain` o `Application` bajan del 80 % o si el total baja
+del 70 %. Un cambio que reduzca la cobertura por debajo de lo acordado no se integra.
+
+El script une los informes de las tres ejecuciones antes de medir: una misma línea puede
+estar cubierta por una prueba unitaria en un informe y no aparecer en otro, y contar cada
+informe por separado daría un porcentaje más bajo que el real.
+
+Puede ejecutarse igual en local:
+
+```bash
+dotnet test --settings .runsettings --collect:"XPlat Code Coverage" --results-directory TestResults
+python scripts/verificar-cobertura.py TestResults
+```
+
 ## 6. Limitaciones conocidas
 
 - **Las pruebas de integración y las funcionales dependen de Docker.** En una máquina sin
