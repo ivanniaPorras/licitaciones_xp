@@ -40,18 +40,16 @@ posteriormente realizar la implementación mínima necesaria para hacerla pasar.
 
 ### Segunda mitad — Anyelina Chacón Mora
 
-> Las fechas y los módulos están tomados del historial. **La columna de la derecha la
-> completa Anyelina**, indicando qué solicitó exactamente en cada caso.
-
 | Fecha | Módulo o entrega | Qué se solicitó |
 |---|---|---|
-| 20/08/2026 | Entrega 9 · Bloque B1 — Tipo de cambio y conversión monetaria | *(por completar)* |
-| 21/08/2026 | Entrega 10 · Bloque B2 — Interfaz web, página inicial, temas claro y oscuro, paginación | *(por completar)* |
-| 21/08/2026 | Entrega 11 · Bloque B3 — API transversal, `ProblemDetails`, colección reproducible | *(por completar)* |
-| 23/08/2026 | Entrega 12 · Bloque B4 — Pruebas de extremo a extremo con Playwright | *(por completar)* |
-| 23/08/2026 | Entrega 13 · Bloque B5 — Imagen multietapa y Docker Compose | *(por completar)* |
-| 23/08/2026 | Entrega 14 · Bloque B6 — Manifiestos de Kubernetes e integración continua | *(por completar)* |
-| 23/08/2026 | Entrega 15 · Bloque B7 — Documentación y cierre | *(por completar)* |
+| 20/08/2026 | Entrega 9 · Bloque B1 — Tipo de cambio y conversión monetaria | Antes de pedir código se solicitó un análisis del proyecto completo para determinar qué faltaba realmente, porque de la primera mitad solo se contaba con la nota de traspaso. A partir de ese análisis se solicitó apoyo para el servicio de tipo de cambio, la activación de la tasa vigente dentro de una transacción, la conversión a dólares, los endpoints y las pantallas. Se pidió expresamente trabajar solo ese bloque y no adelantar los siguientes. |
+| 21/08/2026 | Entrega 10 · Bloque B2 — Interfaz web, página inicial, temas claro y oscuro, paginación | Se solicitó apoyo para la página inicial explicativa con el diagrama del flujo, el alternador de tema claro y oscuro con la preferencia guardada, y la paginación con búsqueda y ordenamiento en los cinco listados, incluidos los dos que todavía devolvían la colección completa. |
+| 21/08/2026 | Entrega 11 · Bloque B3 — API transversal, `ProblemDetails`, colección reproducible | Se solicitó apoyo para describir el contrato en la documentación interactiva y enlazarla desde el menú, cerrar los caminos de error que aún respondían sin código propio ni identificador de correlación, y preparar la colección reproducible de solicitudes dentro de `/docs`. |
+| 23/08/2026 | Entrega 12 · Bloque B4 — Pruebas de extremo a extremo con Playwright | Se solicitó apoyo para montar las pruebas de navegador: el recorrido completo del flujo y el ciclo de creación, consulta, edición y eliminación de los cinco módulos, además de la medición de cobertura contra los umbrales comprometidos. |
+| 23/08/2026 | Entrega 13 · Bloque B5 — Imagen multietapa y Docker Compose | Se solicitó apoyo para la imagen multietapa con usuario sin privilegios, el archivo de Compose con base de datos, migraciones, web y API, y las comprobaciones de salud de cada servicio. |
+| 23/08/2026 | Entrega 14 · Bloque B6 — Manifiestos de Kubernetes e integración continua | Se solicitó apoyo para los manifiestos con almacenamiento persistente, las tres sondas, los límites de recursos y la ejecución controlada de las migraciones, además de ampliar la integración continua con cobertura y construcción de imágenes. |
+| 23/08/2026 | Entrega 15 · Bloque B7 — Documentación y cierre | Se solicitó apoyo para completar la documentación de Docker, Kubernetes y pruebas, cerrar la bitácora con los resultados medidos e integrar las tres ramas a `main`. |
+
 
 ## 4. Ejemplos relevantes
 
@@ -90,19 +88,13 @@ todo en una sola sesión.
 
 ### Segunda mitad — Anyelina Chacón Mora
 
-> **Esta tabla la completa Anyelina.** Certifica su propia comprensión del código que
-> construyó, así que no puede escribirla otra persona. Debe indicar, por cada elemento
-> asistido: qué probó, qué corrigió y qué rechazó del resultado generado.
->
-> Como punto de partida, el historial registra al menos una corrección suya sobre una
-> propuesta de la herramienta: el commit *«corrige la vigencia que se mostraba un día antes
-> al pasarla a hora local»*, del 20/08/2026.
-
 | Fecha | Elemento revisado | Qué se probó | Qué se corrigió o rechazó | Revisado por |
 |---|---|---|---|---|
-| 20/08/2026 | Fecha de vigencia del tipo de cambio | *(por completar)* | *(por completar)* | Anyelina Chacón |
-| | *(por completar)* | | | Anyelina Chacón |
-| | *(por completar)* | | | Anyelina Chacón |
+| 20/08/2026 | Fecha de vigencia del tipo de cambio | Se levantó la aplicación contra PostgreSQL y se revisó la pantalla de tipo de cambio. La tasa sembrada con vigencia del 1 de enero de 2026 aparecía en pantalla como 31/12/2025. | La vista convertía a hora local una fecha que es de calendario y no un instante. Se rechazó corregirlo en la vista, porque el problema se habría repetido en cada pantalla nueva, y la corrección se llevó al dominio: `TipoCambio.Crear` conserva el día escrito y lo ancla a medianoche universal. Prueba `Crear_LlevaLaVigenciaAlInicioDeSuDiaEnTiempoUniversal`. | Anyelina Chacón |
+| 21/08/2026 | Búsqueda del listado de ofertas | Al añadir el campo de búsqueda se revisó cómo se aplicaba el filtro y se encontró que actuaba **después** de traer la página: las páginas salían incompletas y el total ignoraba el término buscado. | Se reescribió la consulta con subconsultas sobre el código de la licitación y el nombre del proveedor, de modo que el filtro entra antes del conteo y de la paginación. | Anyelina Chacón |
+| 21/08/2026 | Enlaces de paginación y ordenamiento | Se comprobó en el navegador que al pasar de página se perdían la búsqueda y los filtros que ya estaban puestos, porque cada enlace llevaba solo su propio parámetro. | Se centralizó la construcción de los enlaces en `ParametrosListado`, que parte de la cadena de consulta vigente y cambia únicamente el parámetro que corresponde. | Anyelina Chacón |
+| 21/08/2026 | Contraste en modo oscuro | Se revisaron las hojas de estilo propias y se encontró que fijaban colores literales heredados de la plantilla inicial. | Se rechazó conservar esos valores y se sustituyeron por las variables de Bootstrap, para que el modo oscuro no herede los tonos del claro y el texto mantenga contraste suficiente. | Anyelina Chacón |
+| 23/08/2026 | Enlace de decimales en los formularios | Al ejecutar el recorrido en navegador, el formulario de licitaciones rechazaba un presupuesto correcto. Se comprobó el estado del campo en el navegador y llegaba al servidor como cero. | Un campo `input type="number"` envía siempre el valor en formato invariante, y la cultura `es-CR` no puede interpretar `10000000.00` porque su último grupo tiene dos dígitos en lugar de tres. Se añadió `EnlazadorDecimalInvariante`, que prueba primero la cultura invariante y después la del sitio. El defecto venía de la entrega 5 y ninguna prueba anterior podía verlo, porque las de la API envían JSON. | Anyelina Chacón |
 
 Estas validaciones nos sirven también como preparación para la defensa del proyecto, ya que
 debemos ser capaces de explicar las decisiones realizadas, identificar por qué se produjo
