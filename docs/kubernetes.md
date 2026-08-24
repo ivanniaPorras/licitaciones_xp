@@ -40,11 +40,12 @@ Con Docker Desktop no hace falta cargarlas: comparte el mismo almacén de imáge
 
 ## 2. Orden de aplicación de los manifiestos
 
-Los archivos van numerados y ese es el orden. El único paso manual es el secreto.
+El espacio de nombres va primero porque todo lo demás vive dentro de él; el resto puede
+aplicarse en bloque. El único paso manual es el secreto.
 
 ```bash
-kubectl apply -f k8s/00-namespace.yaml
-kubectl apply -f k8s/01-configmap.yaml
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/app-configmap.yaml
 
 # El secreto real se crea a mano. Ver la sección 3.
 kubectl create secret generic licitaciones-secret \
@@ -52,15 +53,23 @@ kubectl create secret generic licitaciones-secret \
   --from-literal=POSTGRES_USER='usuario_real' \
   --from-literal=POSTGRES_PASSWORD='contrasena_real'
 
-kubectl apply -f k8s/03-postgres.yaml
+kubectl apply -f k8s/postgres-pvc.yaml
+kubectl apply -f k8s/postgres-service.yaml
+kubectl apply -f k8s/postgres-statefulset.yaml
 kubectl wait --namespace licitaciones --for=condition=ready pod -l app.kubernetes.io/name=postgres --timeout=180s
 
-kubectl apply -f k8s/04-migraciones-job.yaml
+# Las migraciones corren una sola vez, en un Job, y no al arrancar cada réplica.
+kubectl apply -f k8s/migraciones-job.yaml
 kubectl wait --namespace licitaciones --for=condition=complete job/licitaciones-migraciones --timeout=180s
 
-kubectl apply -f k8s/05-web.yaml
-kubectl apply -f k8s/06-api.yaml
+kubectl apply -f k8s/app-deployment.yaml
+kubectl apply -f k8s/app-service.yaml
+kubectl apply -f k8s/api.yaml
 ```
+
+Una vez creado el espacio de nombres y el secreto, `kubectl apply -f k8s/` aplica todo lo
+demás de una vez; el orden explícito de arriba solo hace falta la primera vez, para poder
+esperar a que la base esté lista antes de migrar.
 
 Al terminar:
 
@@ -82,7 +91,7 @@ kubectl delete namespace licitaciones
 
 ## 3. Creación del secreto real a partir del ejemplo
 
-El repositorio versiona **solo** [`k8s/02-secret.example.yaml`](../k8s/02-secret.example.yaml),
+El repositorio versiona **solo** [`k8s/app-secret.example.yaml`](../k8s/app-secret.example.yaml),
 con valores ficticios. Ese archivo no se aplica: existe para que quien despliegue sepa qué
 claves espera el resto de los manifiestos sin tener que leerlos uno por uno.
 
