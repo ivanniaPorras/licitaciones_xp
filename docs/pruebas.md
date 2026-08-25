@@ -200,6 +200,15 @@ las imágenes y validación de los manifiestos—:
 
 ![Integración continua satisfactoria](assets/ci-run-satisfactorio.png)
 
+### El flujo bloquea la integración cuando falla
+
+La rama `main` está protegida. No admite envíos directos: todo cambio entra por una
+solicitud de integración que necesita una aprobación de la otra integrante y que los tres
+trabajos del flujo terminen en verde. Un cambio que rompa la compilación, el formato, las
+pruebas, los umbrales de cobertura o los manifiestos no se puede integrar.
+
+![Protección de la rama principal con los tres trabajos exigidos](assets/branch-protection.png)
+
 ## 6. Limitaciones conocidas
 
 - **Las pruebas de integración y las funcionales dependen de Docker.** En una máquina sin
