@@ -10,6 +10,16 @@ que nunca modifica los valores persistidos.
 
 El proceso de desarrollo se rige **exclusivamente por Extreme Programming (XP)**.
 
+## Repositorio
+
+| | |
+|---|---|
+| Código y historial | https://github.com/ivanniaPorras/licitaciones_xp |
+| Clonar | `git clone https://github.com/ivanniaPorras/licitaciones_xp.git` |
+| Entrega evaluada | [`v1.0.0`](https://github.com/ivanniaPorras/licitaciones_xp/releases/tag/v1.0.0) |
+| Liberaciones por iteración | [`v0.1.0`](https://github.com/ivanniaPorras/licitaciones_xp/releases/tag/v0.1.0) · [`v0.2.0`](https://github.com/ivanniaPorras/licitaciones_xp/releases/tag/v0.2.0) · [`v0.3.0`](https://github.com/ivanniaPorras/licitaciones_xp/releases/tag/v0.3.0) |
+| Integración continua | [Ejecuciones del flujo](https://github.com/ivanniaPorras/licitaciones_xp/actions) |
+
 ## Integrantes
 
 | Nombre | Correo |
